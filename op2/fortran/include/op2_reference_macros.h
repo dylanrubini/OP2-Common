@@ -47,6 +47,13 @@
 #define CLIST_41(x) CLIST_40(x), APPLY(x,41)
 #define CLIST_42(x) CLIST_41(x), APPLY(x,42)
 #define CLIST_43(x) CLIST_42(x), APPLY(x,43)
+#define CLIST_44(x) CLIST_43(x), APPLY(x,44)
+#define CLIST_45(x) CLIST_44(x), APPLY(x,45)
+#define CLIST_46(x) CLIST_45(x), APPLY(x,46)
+#define CLIST_47(x) CLIST_46(x), APPLY(x,47)
+#define CLIST_48(x) CLIST_47(x), APPLY(x,48)
+#define CLIST_49(x) CLIST_48(x), APPLY(x,49)
+#define CLIST_50(x) CLIST_49(x), APPLY(x,50)
 
 #define SLIST_1(d,x) APPLY(x,1)
 #define SLIST_2(d,x) SLIST_1(d,x) d APPLY(x,2)
@@ -91,6 +98,15 @@
 #define SLIST_41(d,x) SLIST_40(d,x) d APPLY(x,41)
 #define SLIST_42(d,x) SLIST_41(d,x) d APPLY(x,42)
 #define SLIST_43(d,x) SLIST_42(d,x) d APPLY(x,43)
+#define SLIST_44(d,x) SLIST_43(d,x) d APPLY(x,44)
+#define SLIST_45(d,x) SLIST_44(d,x) d APPLY(x,45)
+#define SLIST_46(d,x) SLIST_45(d,x) d APPLY(x,46)
+#define SLIST_47(d,x) SLIST_46(d,x) d APPLY(x,47)
+#define SLIST_48(d,x) SLIST_47(d,x) d APPLY(x,48)
+#define SLIST_49(d,x) SLIST_48(d,x) d APPLY(x,49)
+#define SLIST_50(d,x) SLIST_49(d,x) d APPLY(x,50)
+
+
 
 #define APPLY(x,y) x(y)
 

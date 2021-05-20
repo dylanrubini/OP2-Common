@@ -98,6 +98,7 @@ comment = '! '
 
 hydra = 0
 bookleaf=0
+utblock =0
 
 # from http://stackoverflow.com/a/241506/396967
 ##########################################################################
@@ -511,6 +512,9 @@ if len(sys.argv) > 1:
   if sys.argv[1] == 'bookleaf':
     bookleaf = 1
     init_ctr=2
+  if sys.argv[1] == 'utblock':
+    utblock = 1
+    init_ctr=2   
 
 for a in range(init_ctr,len(sys.argv)):
   print('processing file '+ str(a) + ' of ' + str(len(sys.argv)-init_ctr) + ' '+ \
@@ -1029,11 +1033,11 @@ if npart==0 and nhdf5>0:
 
 #MPI+SEQ
 #op2_gen_mpiseq(str(sys.argv[init_ctr]), date, consts, kernels, hydra)  # generate host stubs for MPI+SEQ
-op2_gen_mpiseq3(str(sys.argv[init_ctr]), date, consts, kernels, hydra, bookleaf)  # generate host stubs for MPI+SEQ -- optimised by removing the overhead due to fortran c to f pointer setups
+op2_gen_mpiseq3(str(sys.argv[init_ctr]), date, consts, kernels, hydra, bookleaf, utblock)  # generate host stubs for MPI+SEQ -- optimised by removing the overhead due to fortran c to f pointer setups
 #op2_gen_mpivec(str(sys.argv[init_ctr]), date, consts, kernels, hydra, bookleaf)  # generate host stubs for MPI+SEQ with intel vectorization optimisations
 
 #OpenMP
-op2_gen_openmp3(str(sys.argv[init_ctr]), date, consts, kernels, hydra, bookleaf)  # optimised by removing the overhead due to fortran c to f pointer setups
+# op2_gen_openmp3(str(sys.argv[init_ctr]), date, consts, kernels, hydra, bookleaf)  # optimised by removing the overhead due to fortran c to f pointer setups
 #op2_gen_openmp2(str(sys.argv[init_ctr]), date, consts, kernels, hydra) # version without staging
 #op2_gen_openmp(str(sys.argv[init_ctr]), date, consts, kernels, hydra)  # original version - one that most op2 papers refer to
 
@@ -1041,7 +1045,7 @@ op2_gen_openmp3(str(sys.argv[init_ctr]), date, consts, kernels, hydra, bookleaf)
 #op2_gen_cuda(str(sys.argv[1]), date, consts, kernels, hydra, bookleaf)
 #op2_gen_cuda_gbl(str(sys.argv[init_ctr]), date, consts, kernels, hydra,bookleaf) # global coloring
 #op2_gen_cuda_permute(str(sys.argv[init_ctr]), date, consts, kernels, hydra,bookleaf) # permute does a different coloring (permute execution within blocks by color)
-op2_gen_cuda_color2(str(sys.argv[init_ctr]), date, consts, kernels, hydra,bookleaf) # does global coloring
+# op2_gen_cuda_color2(str(sys.argv[init_ctr]), date, consts, kernels, hydra,bookleaf) # does global coloring
 #op2_gen_cudaINC(str(sys.argv[1]), date, consts, kernels, hydra)      # stages increment data only in shared memory
 #op2_gen_cuda_old(str(sys.argv[1]), date, consts, kernels, hydra)     # Code generator targettign Fermi GPUs
 
