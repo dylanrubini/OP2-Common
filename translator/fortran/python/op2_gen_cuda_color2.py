@@ -162,7 +162,7 @@ get_stride_string=util.get_stride_string
 replace_soa = util.replace_soa
 find_function_calls=util.find_function_calls
 
-def op2_gen_cuda_color2(master, date, consts, kernels, hydra, bookleaf):
+def op2_gen_cuda_color2(master, date, consts, kernels, hydra, bookleaf, utblock):
 
 #  global util.funlist, util.const_list
   global dims, idxs, typs, indtyps, inddims
@@ -345,6 +345,12 @@ def op2_gen_cuda_color2(master, date, consts, kernels, hydra, bookleaf):
     if bookleaf:
       code('USE kinds_mod,    ONLY: ink,rlk')
       code('USE parameters_mod,ONLY: LI')
+    if utblock: 
+      code('USE utilities')      
+      code('USE GLOBAL_GAS_FUNCTIONS')
+      code('USE kdtree2_precision_module')
+      code('USE kdtree2_module')             
+      code('use PSUEDO_LAPLACIAN_CELLNODE')      
     code('USE OP2_FORTRAN_DECLARATIONS')
     code('USE OP2_FORTRAN_RT_SUPPORT')
     code('USE ISO_C_BINDING')
@@ -642,6 +648,52 @@ def op2_gen_cuda_color2(master, date, consts, kernels, hydra, bookleaf):
       if any_soa:
         text = re.sub('\\bDIMENSION\([A-Za-z0-9_]*\)','DIMENSION(*)',text)
       file_text += text
+
+    elif utblock:
+      file_text += '!DEC$ ATTRIBUTES FORCEINLINE :: ' + name + '\n'      
+      prefixes=['./User-Kernels/set_flux/','./User-Kernels/utblock_main/','./User-Kernels/sumflux/','./User-Kernels/setstep/', \
+      './User-Kernels/set_xlength/','./User-Kernels/bconds/','./User-Kernels/sumas/', './User-Kernels/inguess/', \
+      './User-Kernels/set_visforce/', './User-Kernels/time_average/', './User-Kernels/output/', './User-Kernels/SA_model/']
+      prefix_i=0      
+      while (prefix_i<12 and (not os.path.exists(prefixes[prefix_i]+name+'.inc'))):
+        prefix_i=prefix_i+1
+
+      fid = open(prefixes[prefix_i]+name+'.inc', 'r')
+      text = fid.read()
+      i = re.search('subroutine '+name+'\\b',text).start() #text.find('SUBROUTINE '+name)
+      j = i + 10 + text[i+10:].find('subroutine '+name) + 11 + len(name)
+      file_text += 'attributes (host) subroutine ' + name + '' + text[i+ 11 + len(name):j]+'\n\n'
+      # file_text = 'attributes (device) subroutine ' + name + '_gpu' + text[i+ 11 + len(name):j]+'_gpu\n\n'
+
+      # text = replace_soa(kern_text,nargs,soaflags,name,maps,accs,set_name,mapnames,1,hydra,bookleaf)
+      # if any_soa:
+      #   text = re.sub('\\bDIMENSION\([A-Za-z0-9_]*\)','DIMENSION(*)',text)
+      # file_text += text
+
+#      text = replace_soa(text,nargs,soaflags,name,maps,accs,set_name,mapnames,1,hydra,bookleaf,[],atomics)
+      #find subroutine calls
+      code('attributes (device) &')      
+      util.funlist = [name.lower()]
+      util.funlist2 = []
+      plus_kernels, text = find_function_calls(text,'attributes(device) ',name+'_gpu')  
+      funcs = util.replace_soa_subroutines(util.funlist2,0,soaflags,maps,accs,mapnames,1,hydra,bookleaf,unknown_size_red_atomic,[],atomics)
+      text = ''
+      for func in funcs:
+
+          for const in range(0,len(consts)):
+            i = re.search('\\b'+consts[const]['name']+'\\b',func['function_text'])
+            if i != None:
+    #          print 'Found ' + consts[const]['name']
+              j = i.start()
+              func['function_text'] = func['function_text'][0:j+1] + re.sub('\\b'+consts[const]['name']+'\\b',consts[const]['name']+'_OP2',func['function_text'][j+1:])    
+                  
+          text = text + '\n' + func['function_text']
+      for fun in util.funlist:
+        regex = re.compile('\\b'+fun+'\\b',re.I)
+        text = regex.sub(fun+'_gpu',text)
+      code(text)
+      depth += 2
+      code('')
 
     else:
       depth -= 2
@@ -1654,6 +1706,10 @@ def op2_gen_cuda_color2(master, date, consts, kernels, hydra, bookleaf):
       fid = open(name+'_gpukernel.CUF','w')
     elif bookleaf:
       fid = open(prefixes[prefix_i]+name+'_gpukernel.CUF','w')
+    elif utblock: 
+      if not os.path.exists(prefixes[prefix_i].replace('User-Kernels','Auto-Kernels/CUDA')):
+        os.makedirs(prefixes[prefix_i].replace('User-Kernels','Auto-Kernels/CUDA'))      
+      fid = open(prefixes[prefix_i].replace('User-Kernels','Auto-Kernels/CUDA')+name+'_gpukernel.CUF','w')         
     else:
       fid = open(name+'_kernel.CUF','w')
     date = datetime.datetime.now()
