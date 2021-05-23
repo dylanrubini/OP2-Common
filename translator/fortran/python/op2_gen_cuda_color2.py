@@ -697,11 +697,22 @@ def op2_gen_cuda_color2(master, date, consts, kernels, hydra, bookleaf, utblock)
 
     else:
       depth -= 2
-      code('attributes (host) &')
-      code('#include "'+name+'.inc"')
-      code('attributes (device) &')
-      fid = open(name+'.inc2', 'r')
+      fid = open(name+'.inc', 'r')
       text = fid.read()
+      i = re.search('SUBROUTINE '+name+'\\b',text).start() #text.find('SUBROUTINE '+name)
+      j = i + 10 + text[i+10:].find('SUBROUTINE') + 11 + len(name)
+      file_text += 'attributes (host) subroutine ' + name + '' + text[i+ 11 + len(name):j]+'\n\n'
+      kern_text = 'attributes (device) subroutine ' + name + '_gpu' + text[i+ 11 + len(name):j]+'\n\n'
+      print(consts)
+      for const in range(0,len(consts)):
+        kern_text = re.sub('\\b'+consts[const]['name']+'\\b',consts[const]['name']+'_OP2',kern_text)
+#        i = re.search('\\b'+consts[const]['name']+'\\b',kern_text)
+#        if i != None:
+#          print 'Found ' + consts[const]['name']
+#          j = i.start()
+
+      print(kern_text)
+      text = kern_text
 #      text = replace_soa(text,nargs,soaflags,name,maps,accs,set_name,mapnames,1,hydra,bookleaf,[],atomics)
       #find subroutine calls
       util.funlist = [name.lower()]

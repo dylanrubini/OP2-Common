@@ -20,4 +20,22 @@ real(8) :: gam, gm1, cfl, eps, mach, alpha, qinf(4)
 
 #endif
 
+contains
+
+subroutine op_decl_const2(name)
+  use OP2_Fortran_Declarations
+#ifdef OP2_WITH_CUDAFOR
+  use cudafor
+#endif
+  implicit none
+  character(len=*) :: name
+
+#ifdef OP2_WITH_CUDAFOR
+#include "constant_list_set_cuda.inc"
+else
+  print *,"ERROR, unknown constant"
+end if
+#endif
+end subroutine
+
 END MODULE OP2_CONSTANTS

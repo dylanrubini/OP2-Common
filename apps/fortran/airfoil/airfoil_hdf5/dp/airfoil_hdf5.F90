@@ -100,6 +100,9 @@ program AIRFOIL
     write (*,*) 'p_test does do not exist', status
   end if
 
+  call op_print ('Initialising constants')
+  call initialise_constants ( )
+
   call op_print ("Declaring OP2 constants")
   call op_decl_const(gam, 1, 'gam')
   call op_decl_const(gm1, 1, 'gm1')
@@ -109,8 +112,6 @@ program AIRFOIL
   call op_decl_const(alpha, 1, 'alpha')
   call op_decl_const(qinf, 4, 'qinf')
 
-  call op_print ('Initialising constants')
-  call initialise_constants ( )
   !call op_dump_to_hdf5("new_grid_out.h5");
 
   call op_partition ('PTSCOTCH','KWAY', edges, pecell, p_x)

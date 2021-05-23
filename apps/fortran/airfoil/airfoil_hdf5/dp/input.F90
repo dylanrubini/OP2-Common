@@ -157,16 +157,6 @@ subroutine initialise_constants ( )
 #endif
 
 !$acc update device(gam, gm1, cfl, eps, mach, alpha, qinf(4))
-#ifdef OP2_WITH_CUDAFOR
-  if (getHybridGPU().EQ.1) then
-  gam_OP2 = gam
-  gm1_OP2 = gm1
-  eps_OP2 = eps
-  cfl_OP2 = cfl
-  mach_OP2 = mach
-  qinf_OP2 = qinf
-  end if
-#endif
 end subroutine initialise_constants
 
 end module

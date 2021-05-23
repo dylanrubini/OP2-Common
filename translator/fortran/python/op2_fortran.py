@@ -595,7 +595,8 @@ for a in range(init_ctr,len(sys.argv)):
       nconsts = nconsts + 1
       temp = {'dim': const_args[i]['dim'],
       'type': const_args[i]['type'].strip(),
-      'name': const_args[i]['name'].strip()}
+      'name': const_args[i]['name'].strip(),
+      'name2': const_args[i]['name2'].strip()}
       consts.append(temp)
 
 ###################### parse and process op_par_loop calls ###############
@@ -914,7 +915,10 @@ for a in range(init_ctr,len(sys.argv)):
       line = ''
       fid.write(line);
       endofcall = text.find('\n', locs[loc])
+      arglist = arg_parse2(text, locs[loc])
       loc_old = endofcall+1
+      line = indent + 'call op_decl_const2('+arglist[2]+')\n'
+      fid.write(line[2:]);
       continue
 
     if locs[loc] in loc_loops:
@@ -1028,6 +1032,16 @@ if npart==0 and nhdf5>0:
   print('---------------------------------------------------')
   print('  WARNING: hdf5 calls without call to op_partition ')
   print('---------------------------------------------------')
+
+########################## generate constants ############################
+
+fid = open('constant_list_set_cuda.inc', 'w')
+prefix=''
+for const in consts:
+  fid.write(prefix+'if (name.eq.'+const['name2']+') then\n')
+  fid.write('  '+const['name2'][1:-1]+'_OP2 = '+const['name2'][1:-1]+'\n')
+  prefix = 'else '
+fid.close()
 
 ########## finally, generate target-specific kernel files ################
 
