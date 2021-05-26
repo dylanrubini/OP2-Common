@@ -836,7 +836,7 @@ module OP2_Fortran_Declarations
     & op_decl_const_scalar_real_8, op_decl_const_logical,    &
     & op_decl_const_integer_2_4, op_decl_const_integer_3_4,  & 
     & op_decl_const_real_2_8, op_decl_const_real_3_8,        &
-    & op_decl_const_string
+    & op_decl_const_string, op_decl_const_string_1, op_decl_const_string_2
   end interface op_decl_const
 
   interface op_arg_dat
@@ -1421,6 +1421,40 @@ contains
     opname_dummy = opname//C_NULL_CHAR
 
   end subroutine op_decl_const_string
+
+  subroutine op_decl_const_string_1 ( dat, constdim, opname )
+
+    character(kind=c_char,len=*), dimension(:), intent(in), target :: dat
+    integer(kind=c_int), value :: constdim
+    character(kind=c_char,len=*), optional :: opname
+
+    ! string dummies to prevent compiler warning
+    character(kind=c_char,len=512), dimension(1) :: dat_dummy
+    integer(kind=c_int) :: constdim_dummy
+    character(kind=c_char) :: opname_dummy
+
+    dat_dummy(1) = dat(1)
+    constdim_dummy = constdim
+    opname_dummy = opname//C_NULL_CHAR
+
+  end subroutine op_decl_const_string_1
+
+  subroutine op_decl_const_string_2 ( dat, constdim, opname )
+
+    character(kind=c_char,len=*), dimension(:,:), intent(in), target :: dat
+    integer(kind=c_int), value :: constdim
+    character(kind=c_char,len=*), optional :: opname
+
+    ! string dummies to prevent compiler warning
+    character(kind=c_char,len=512), dimension(1,1) :: dat_dummy
+    integer(kind=c_int) :: constdim_dummy
+    character(kind=c_char) :: opname_dummy
+
+    dat_dummy(1,1) = dat(1,1)
+    constdim_dummy = constdim
+    opname_dummy = opname//C_NULL_CHAR
+
+  end subroutine op_decl_const_string_2
 
   integer(kind=c_int) function op_free_dat_temp (dat)
     use, intrinsic :: ISO_C_BINDING
