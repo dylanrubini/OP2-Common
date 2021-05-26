@@ -1010,6 +1010,17 @@ for a in range(init_ctr,len(sys.argv)):
     fid.write(text)
     fid.close()
 
+  if utblock:
+    fid = open(src_file.replace('.','_op.'), 'r')           
+    text = fid.read()
+    fid.close()
+
+    text = text.replace('use UTBLOCK_SEQFUN\n','!use UTBLOCK_SEQFUN\n')    
+
+    fid = open(src_file.replace('.','_op.'), 'w')
+    fid.write(text)
+    fid.close()    
+    
   f.close()
 #end of loop over input source files
 
