@@ -60,7 +60,7 @@ export MPIFC=/opt/openmpi4_Portland/bin/mpif90
 # make clean 
 # make directories
 
-./python_generate.sh 
+# ./python_generate.sh 
 
 # make utblockPP utblock utblock_mpi utblockPost
 # make utblockPost
@@ -69,7 +69,7 @@ export MPIFC=/opt/openmpi4_Portland/bin/mpif90
 # make utblockPP
 # make utblock
 # make utblock_mpi_genseq
-make airfoil_hdf5_mpi_genseq
+make all
 # make utblockPP
 # make utblockPost
 # make utblock_genseq
