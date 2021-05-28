@@ -224,6 +224,8 @@ void write_file(op_dat dat, const char *file_name) {
 void fetch_data_hdf5(op_dat dat, char *usr_ptr, int low, int high) {
   if (strcmp(dat->type, "double") == 0)
     gather_data_hdf5<double>(dat, usr_ptr, low, high);
+  else if (strcmp(dat->type, "real(8)") == 0)
+    gather_data_hdf5<double>(dat, usr_ptr, low, high);   
   else if (strcmp(dat->type, "float") == 0)
     gather_data_hdf5<float>(dat, usr_ptr, low, high);
   else if (strcmp(dat->type, "int") == 0)
