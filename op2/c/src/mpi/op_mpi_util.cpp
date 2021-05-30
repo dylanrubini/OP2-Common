@@ -228,8 +228,16 @@ void fetch_data_hdf5(op_dat dat, char *usr_ptr, int low, int high) {
     gather_data_hdf5<double>(dat, usr_ptr, low, high);   
   else if (strcmp(dat->type, "float") == 0)
     gather_data_hdf5<float>(dat, usr_ptr, low, high);
+  else if (strcmp(dat->type, "real") == 0)
+    gather_data_hdf5<float>(dat, usr_ptr, low, high);  
+  else if (strcmp(dat->type, "real(4)") == 0)
+    gather_data_hdf5<float>(dat, usr_ptr, low, high);    
   else if (strcmp(dat->type, "int") == 0)
     gather_data_hdf5<int>(dat, usr_ptr, low, high);
+  else if (strcmp(dat->type, "integer(4)") == 0)
+    gather_data_hdf5<int>(dat, usr_ptr, low, high); 
+  else if (strcmp(dat->type, "integer") == 0)
+    gather_data_hdf5<int>(dat, usr_ptr, low, high);      
   else
     printf("Unknown type %s, cannot error in fetch_data_hdf5() \n", dat->type);
 }
