@@ -12,7 +12,7 @@ module load git
 #OP2 specifics
 export OP2_COMPILER=intel
 OP2_DIR="op2/"
-OP2_INSTALL_PATH_MINUS1=/data/engs-cfd-combusterflow/orie3565/UTBLOCK-OP2-Devel/OP2-Common
+OP2_INSTALL_PATH_MINUS1="/data/engs-cfd-combusterflow/orie3565/UTBLOCK-OP2-Devel/OP2-Common/"
 export OP2_INSTALL_PATH=$OP2_INSTALL_PATH_MINUS1$OP2_DIR
 export DEBUG=1
 unset OP_AUTO_SOA
