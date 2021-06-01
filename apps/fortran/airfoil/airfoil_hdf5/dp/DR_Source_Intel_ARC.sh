@@ -23,6 +23,7 @@ unset OP_AUTO_SOA
 module load OpenMPI/4.0.5-iccifort-2020.4.304
 module load ParMETIS/4.0.3-iimpi-2020a
 module load HDF5/1.10.5-iimpi-2020a
+module load Valgrind/3.16.1-iimpi-2020a
 # #External libraries
 # export PARMETIS_INSTALL_PATH=/opt/parmetis4_Portland/
 # export PTSCOTCH_INSTALL_PATH=/opt/ptscotch6_Portland/
