@@ -57,6 +57,7 @@ export LD_LIBRARY_PATH=/apps/system/easybuild/software/ParMETIS/4.0.3-gompi-2019
 #export LD_LIBRARY_PATH=/usr/local/cuda-7.5.7_rc/lib64:$LD_LIBRARY_PATH
 #export CUDA_INSTALL_PATH=/usr/local/cuda-7.5.7_rc
 
+export HDF5_USE_FILE_LOCKING=FALSE
 
 #Intel MPI and Compilers
 # module load pgi/19.4

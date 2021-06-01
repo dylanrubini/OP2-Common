@@ -49,11 +49,13 @@ export LD_LIBRARY_PATH=/apps/system/easybuild/software/HDF5/1.10.5-iimpi-2020a/l
 #export CUDA_INSTALL_PATH=/usr/local/cuda-7.5.7_rc
 
 
+export HDF5_USE_FILE_LOCKING=FALSE
+
 #Intel MPI and Compilers
 # module load pgi/19.4
 export MPI_INSTALL_PATH=/apps/system/easybuild/software/impi/2019.7.217-iccifort-2020.1.217/intel64/
 # export PATH=/opt/openmpi4_Portland/bin/:$PATH
-export LD_LIBRARY_PATH=/apps/system/easybuild/software/impi/2019.7.217-iccifort-2020.1.217/intel64lib/:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=/apps/system/easybuild/software/impi/2019.7.217-iccifort-2020.1.217/intel64/lib/:$LD_LIBRARY_PATH
 # export PATH=/opt/pgi/linux86-64/2019/bin:$PATH
 #source /opt/compilers/intel/intelPS-2015/composerxe/bin/compilervars.sh intel64
 #source /opt/compilers/intel/intelPS-2015/impi_latest/intel64/bin/mpivars.sh intel64
