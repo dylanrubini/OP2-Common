@@ -210,7 +210,7 @@ HDF5_LIB += -lhdf5 -lz
 
 .PHONY: clean mklib
 
-all: clean core hdf5 seq openmp mpi_seq cuda mpi_cuda openmp4
+# all: clean core hdf5 seq openmp mpi_seq cuda mpi_cuda openmp4
 	# DR: remove cuda and openmp make targets for now
 all: clean core hdf5 seq mpi_seq
 
