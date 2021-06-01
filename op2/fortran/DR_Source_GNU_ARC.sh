@@ -35,7 +35,8 @@ export HDF5_INSTALL_PATH=/apps/system/easybuild/software/HDF5/1.10.5-gompi-2019a
 # #export HDF5_INSTALL_PATH=/home/mudalige/hdf5-1.10.1-intel
 # export HDF5_INSTALL_PATH=/opt/hdf5_Portland/
 # #export LD_LIBRARY_PATH=/opt/parmetis-intel/lib:/opt/ptscotch-intel/lib:/home/mudalige/hdf5-1.10.1-intel/lib/:$LD_LIBRARY_PATH
-export LD_LIBRARY_PATH=/apps/system/easybuild/software/ParMETIS/4.0.3-gompi-2020a/lib:/apps/system/easybuild/software/HDF5/1.12.0-gompi-2020a/lib:$LD_LIBRARY_PATH
+# export LD_LIBRARY_PATH=/apps/system/easybuild/software/ParMETIS/4.0.3-gompi-2020a/lib:/apps/system/easybuild/software/HDF5/1.12.0-gompi-2020a/lib:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=/apps/system/easybuild/software/ParMETIS/4.0.3-gompi-2019a/lib:/apps/system/easybuild/software/HDF5/1.10.5-gompi-2019a/lib:$LD_LIBRARY_PATH
 
 
 #NVIDIA CUDA
