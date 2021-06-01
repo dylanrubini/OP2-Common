@@ -25,13 +25,13 @@ module load ParMETIS/4.0.3-iimpi-2020a
 module load HDF5/1.10.5-iimpi-2020a
 module load Valgrind/3.16.1-iimpi-2020a
 # #External libraries
-# export PARMETIS_INSTALL_PATH=/opt/parmetis4_Portland/
+export PARMETIS_INSTALL_PATH=/apps/system/easybuild/software/ParMETIS/4.0.3-iimpi-2020a/
 # export PTSCOTCH_INSTALL_PATH=/opt/ptscotch6_Portland/
-# #export HDF5_INSTALL_PATH=/opt/hdf5-intel/
+export HDF5_INSTALL_PATH=/apps/system/easybuild/software/HDF5/1.10.5-iimpi-2020a/
 # #export HDF5_INSTALL_PATH=/home/mudalige/hdf5-1.10.1-intel
 # export HDF5_INSTALL_PATH=/opt/hdf5_Portland/
 # #export LD_LIBRARY_PATH=/opt/parmetis-intel/lib:/opt/ptscotch-intel/lib:/home/mudalige/hdf5-1.10.1-intel/lib/:$LD_LIBRARY_PATH
-# export LD_LIBRARY_PATH=/opt/parmetis4_Portland/lib:/opt/ptscotch6_Portland/lib:/opt/hdf5_Portland/lib:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=/apps/system/easybuild/software/HDF5/1.10.5-iimpi-2020a/lib:/apps/system/easybuild/software/HDF5/1.10.5-iimpi-2020a/lib:$LD_LIBRARY_PATH
 
 
 #NVIDIA CUDA
@@ -52,7 +52,7 @@ module load Valgrind/3.16.1-iimpi-2020a
 # module load pgi/19.4
 export MPI_INSTALL_PATH=/apps/system/easybuild/software/OpenMPI/4.0.5-iccifort-2020.4.304/
 # export PATH=/opt/openmpi4_Portland/bin/:$PATH
-# export LD_LIBRARY_PATH=/opt/pgi/linux86-64/19.4/lib/:/opt/openmpi4_Portland/lib/:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=/apps/system/easybuild/software/OpenMPI/4.0.5-iccifort-2020.4.304/lib/:$LD_LIBRARY_PATH
 # export PATH=/opt/pgi/linux86-64/2019/bin:$PATH
 #source /opt/compilers/intel/intelPS-2015/composerxe/bin/compilervars.sh intel64
 #source /opt/compilers/intel/intelPS-2015/impi_latest/intel64/bin/mpivars.sh intel64
