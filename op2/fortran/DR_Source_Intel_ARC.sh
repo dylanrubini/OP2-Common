@@ -46,7 +46,7 @@ module load HDF5/1.10.5-iimpi-2020a
 
 
 #Intel MPI and Compilers
-module load pgi/19.4
+# module load pgi/19.4
 export MPI_INSTALL_PATH=/apps/system/easybuild/software/OpenMPI/4.0.5-iccifort-2020.4.304/
 # export PATH=/opt/openmpi4_Portland/bin/:$PATH
 # export LD_LIBRARY_PATH=/opt/pgi/linux86-64/19.4/lib/:/opt/openmpi4_Portland/lib/:$LD_LIBRARY_PATH
