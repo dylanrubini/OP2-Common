@@ -114,7 +114,7 @@ program AIRFOIL
 
   !call op_dump_to_hdf5("new_grid_out.h5");
 
-  call op_partition ('PTSCOTCH','KWAY', edges, pecell, p_x)
+  call op_partition ('PARMETIS','KWAY', edges, pecell, p_x)
 
   ncelli  = op_get_size(cells)
   ncellr = real(ncelli)
