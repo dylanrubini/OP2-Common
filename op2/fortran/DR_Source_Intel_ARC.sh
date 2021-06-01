@@ -6,12 +6,14 @@ module load git
 
 #unset and set defaults
 # export PATH=/opt/openmpi4/bin:/usr/local/cuda/bin:/usr/local/cuda/bin:/usr/lib64/qt-3.3/bin:/home/orie3565/perl5/bin:/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin:/home/orie3565/.local/bin:/home/orie3565/bin:/var/lib/snapd/snap/bin
-# unset LD_LIBRARY_PATH
+unset LD_LIBRARY_PATH
 . ~/.bashrc
 
 #OP2 specifics
 export OP2_COMPILER=intel
-export OP2_INSTALL_PATH=/data/engs-cfd-combusterflow/orie3565/UTBLOCK-OP2-Devel/OP2-Common/op2
+OP2_DIR="op2/"
+OP2_INSTALL_PATH_MINUS1="/data/engs-cfd-combusterflow/orie3565/UTBLOCK-OP2-Devel/OP2-Common/"
+export OP2_INSTALL_PATH=$OP2_INSTALL_PATH_MINUS1$OP2_DIR
 export DEBUG=1
 unset OP_AUTO_SOA
 #export OP_AUTO_SOA=1
@@ -21,14 +23,15 @@ unset OP_AUTO_SOA
 module load OpenMPI/4.0.5-iccifort-2020.4.304
 module load ParMETIS/4.0.3-iimpi-2020a
 module load HDF5/1.10.5-iimpi-2020a
+module load Valgrind/3.16.1-iimpi-2020a
 # #External libraries
-# export PARMETIS_INSTALL_PATH=/opt/parmetis4_Portland/
+export PARMETIS_INSTALL_PATH=/apps/system/easybuild/software/ParMETIS/4.0.3-iimpi-2020a/
 # export PTSCOTCH_INSTALL_PATH=/opt/ptscotch6_Portland/
-# #export HDF5_INSTALL_PATH=/opt/hdf5-intel/
+export HDF5_INSTALL_PATH=/apps/system/easybuild/software/HDF5/1.10.5-iimpi-2020a/
 # #export HDF5_INSTALL_PATH=/home/mudalige/hdf5-1.10.1-intel
 # export HDF5_INSTALL_PATH=/opt/hdf5_Portland/
 # #export LD_LIBRARY_PATH=/opt/parmetis-intel/lib:/opt/ptscotch-intel/lib:/home/mudalige/hdf5-1.10.1-intel/lib/:$LD_LIBRARY_PATH
-# export LD_LIBRARY_PATH=/opt/parmetis4_Portland/lib:/opt/ptscotch6_Portland/lib:/opt/hdf5_Portland/lib:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=/apps/system/easybuild/software/HDF5/1.10.5-iimpi-2020a/lib:/apps/system/easybuild/software/HDF5/1.10.5-iimpi-2020a/lib:$LD_LIBRARY_PATH
 
 
 #NVIDIA CUDA
@@ -49,7 +52,7 @@ module load HDF5/1.10.5-iimpi-2020a
 # module load pgi/19.4
 export MPI_INSTALL_PATH=/apps/system/easybuild/software/OpenMPI/4.0.5-iccifort-2020.4.304/
 # export PATH=/opt/openmpi4_Portland/bin/:$PATH
-# export LD_LIBRARY_PATH=/opt/pgi/linux86-64/19.4/lib/:/opt/openmpi4_Portland/lib/:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=/apps/system/easybuild/software/OpenMPI/4.0.5-iccifort-2020.4.304/lib/:$LD_LIBRARY_PATH
 # export PATH=/opt/pgi/linux86-64/2019/bin:$PATH
 #source /opt/compilers/intel/intelPS-2015/composerxe/bin/compilervars.sh intel64
 #source /opt/compilers/intel/intelPS-2015/impi_latest/intel64/bin/mpivars.sh intel64
@@ -63,7 +66,6 @@ export MPI_INSTALL_PATH=/apps/system/easybuild/software/OpenMPI/4.0.5-iccifort-2
 # export MPICC=/opt/openmpi4_Portland/bin/mpicc
 # export MPIF90=/opt/openmpi4_Portland/bin/mpif90
 # export MPIFC=/opt/openmpi4_Portland/bin/mpif90
-
 make clean 
 
 make

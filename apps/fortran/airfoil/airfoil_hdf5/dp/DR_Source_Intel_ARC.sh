@@ -6,7 +6,7 @@ module load git
 
 #unset and set defaults
 # export PATH=/opt/openmpi4/bin:/usr/local/cuda/bin:/usr/local/cuda/bin:/usr/lib64/qt-3.3/bin:/home/orie3565/perl5/bin:/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin:/home/orie3565/.local/bin:/home/orie3565/bin:/var/lib/snapd/snap/bin
-# unset LD_LIBRARY_PATH
+unset LD_LIBRARY_PATH
 . ~/.bashrc
 
 #OP2 specifics
