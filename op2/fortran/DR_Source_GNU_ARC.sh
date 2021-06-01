@@ -20,9 +20,14 @@ unset OP_AUTO_SOA
 
 # load modules 
 # module load intel/2020a
-module load OpenMPI/4.0.3-GCC-9.3.0
-module load ParMETIS/4.0.3-gompi-2020a
-module load HDF5/1.12.0-gompi-2020a
+# module load OpenMPI/4.0.3-GCC-9.3.0
+# module load ParMETIS/4.0.3-gompi-2020a
+# module load HDF5/1.12.0-gompi-2020a
+# module load Valgrind/3.16.1-gompi-2020a
+
+module load OpenMPI/3.1.3-GCC-8.2.0-2.31.1
+module load ParMETIS/4.0.3-gompi-2019a
+module load HDF5/1.10.5-gompi-2019a
 module load Valgrind/3.16.1-gompi-2020a
 
 
