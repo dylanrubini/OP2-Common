@@ -18,12 +18,14 @@ export DEBUG=1
 unset OP_AUTO_SOA
 #export OP_AUTO_SOA=1
 
+
 # load modules 
-# module load intel/2020a
-module load OpenMPI/4.0.5-iccifort-2020.4.304
+module load intel/2020a
+module load impi/2019.7.217-iccifort-2020.1.217
 module load ParMETIS/4.0.3-iimpi-2020a
 module load HDF5/1.10.5-iimpi-2020a
 module load Valgrind/3.16.1-iimpi-2020a
+
 # #External libraries
 export PARMETIS_INSTALL_PATH=/apps/system/easybuild/software/ParMETIS/4.0.3-iimpi-2020a/
 # export PTSCOTCH_INSTALL_PATH=/opt/ptscotch6_Portland/
@@ -50,9 +52,9 @@ export LD_LIBRARY_PATH=/apps/system/easybuild/software/HDF5/1.10.5-iimpi-2020a/l
 
 #Intel MPI and Compilers
 # module load pgi/19.4
-export MPI_INSTALL_PATH=/apps/system/easybuild/software/OpenMPI/4.0.5-iccifort-2020.4.304/
+export MPI_INSTALL_PATH=/apps/system/easybuild/software/impi/2019.7.217-iccifort-2020.1.217/intel64/
 # export PATH=/opt/openmpi4_Portland/bin/:$PATH
-export LD_LIBRARY_PATH=/apps/system/easybuild/software/OpenMPI/4.0.5-iccifort-2020.4.304/lib/:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=/apps/system/easybuild/software/impi/2019.7.217-iccifort-2020.1.217/intel64lib/:$LD_LIBRARY_PATH
 # export PATH=/opt/pgi/linux86-64/2019/bin:$PATH
 #source /opt/compilers/intel/intelPS-2015/composerxe/bin/compilervars.sh intel64
 #source /opt/compilers/intel/intelPS-2015/impi_latest/intel64/bin/mpivars.sh intel64
@@ -66,6 +68,7 @@ export LD_LIBRARY_PATH=/apps/system/easybuild/software/OpenMPI/4.0.5-iccifort-20
 # export MPICC=/opt/openmpi4_Portland/bin/mpicc
 # export MPIF90=/opt/openmpi4_Portland/bin/mpif90
 # export MPIFC=/opt/openmpi4_Portland/bin/mpif90
+
 make clean 
 
 make
