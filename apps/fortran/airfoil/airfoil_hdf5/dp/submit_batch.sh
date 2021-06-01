@@ -13,6 +13,9 @@
 
 #SBATCH --job-name=TestAirfoil
 
+#SBATCH -e TestAirfoil.err                   #error file name
+#SBATCH -o TestAirfoil.log                   #output file name 
+
 module purge
 module load OpenMPI/4.0.5-iccifort-2020.4.304
 module load ParMETIS/4.0.3-iimpi-2020a
