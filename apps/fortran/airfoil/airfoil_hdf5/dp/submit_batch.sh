@@ -19,4 +19,4 @@ module load ParMETIS/4.0.3-iimpi-2020a
 module load HDF5/1.10.5-iimpi-2020a
 module load Valgrind/3.16.1-iimpi-2020a
 
-mpirun $MPI_HOSTS ./airfoil_hdf5_mpi.x
+mpirun $MPI_HOSTS ./airfoil_hdf5_mpi
