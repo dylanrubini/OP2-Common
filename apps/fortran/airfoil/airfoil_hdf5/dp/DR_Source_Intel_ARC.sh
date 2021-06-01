@@ -12,7 +12,7 @@ module load git
 #OP2 specifics
 export OP2_COMPILER=intel
 OP2_DIR="op2/"
-OP2_INSTALL_PATH_MINUS1=/data/engs-cfd-combusterflow/orie3565/UTBLOCK-OP2-Devel/OP2-Common/op2
+OP2_INSTALL_PATH_MINUS1=/data/engs-cfd-combusterflow/orie3565/UTBLOCK-OP2-Devel/OP2-Common
 export OP2_INSTALL_PATH=$OP2_INSTALL_PATH_MINUS1$OP2_DIR
 export DEBUG=1
 unset OP_AUTO_SOA
@@ -66,7 +66,7 @@ export MPI_INSTALL_PATH=/apps/system/easybuild/software/OpenMPI/4.0.5-iccifort-2
 # export MPIF90=/opt/openmpi4_Portland/bin/mpif90
 # export MPIFC=/opt/openmpi4_Portland/bin/mpif90
 
-$OP2_INSTALL_PATH_MINUS1/translator/fortran/python/op2_fortran.py utblock utblock.F90 external_subprograms.F90
+$OP2_INSTALL_PATH_MINUS1/translator/fortran/python/op2_fortran.py airfoil_hdf5.F90
 
 
 make clean 
