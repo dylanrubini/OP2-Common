@@ -637,17 +637,15 @@ op_arg op_arg_dat_core(op_dat dat, int idx, op_map map, int dim,
   }
 
   if (strcmp(typ, "double") == 0 || strcmp(typ, "r8") == 0 ||
-      strcmp(typ, "real*8") == 0 || strcmp(typ, "real(8)") == 0)
+      strcmp(typ, "real*8") == 0)
     arg.type = doublestr;
-  else if (strcmp(typ, "float") == 0  || strcmp(typ, "r4") == 0 ||
-           strcmp(typ, "real*4") == 0 || strcmp(typ, "real(4)") == 0
-           || strcmp(typ, "real") == 0)
+  else if (strcmp(typ, "float") == 0 || strcmp(typ, "r4") == 0 ||
+           strcmp(typ, "real*4") == 0)
     arg.type = floatstr;
   else if (strcmp(typ, "int") == 0 || strcmp(typ, "i4") == 0 ||
-           strcmp(typ, "integer*4") == 0 || strcmp(typ, "integer") == 0
-           || strcmp(typ, "integer(4)") == 0)
+           strcmp(typ, "integer*4") == 0)
     arg.type = intstr;
-  else if (strcmp(typ, "bool") == 0 || strcmp(typ, "logical") == 0)
+  else if (strcmp(typ, "bool") == 0)
     arg.type = boolstr;
   else
     arg.type = copy_str(typ); //Warning this is going to leak
@@ -690,17 +688,15 @@ op_arg op_opt_arg_dat_core(int opt, op_dat dat, int idx, op_map map, int dim,
   }
 
   if (strcmp(typ, "double") == 0 || strcmp(typ, "r8") == 0 ||
-      strcmp(typ, "real*8") == 0 || strcmp(typ, "real(8)") == 0)
+      strcmp(typ, "real*8") == 0)
     arg.type = doublestr;
-  else if (strcmp(typ, "float") == 0  || strcmp(typ, "r4") == 0 ||
-           strcmp(typ, "real*4") == 0 || strcmp(typ, "real(4)") == 0
-           || strcmp(typ, "real") == 0)
+  else if (strcmp(typ, "float") == 0 || strcmp(typ, "r4") == 0 ||
+           strcmp(typ, "real*4") == 0)
     arg.type = floatstr;
   else if (strcmp(typ, "int") == 0 || strcmp(typ, "i4") == 0 ||
-           strcmp(typ, "integer*4") == 0 || strcmp(typ, "integer") == 0
-           || strcmp(typ, "integer(4)") == 0)
+           strcmp(typ, "integer*4") == 0)
     arg.type = intstr;
-  else if (strcmp(typ, "bool") == 0 || strcmp(typ, "logical") == 0)
+  else if (strcmp(typ, "bool") == 0)
     arg.type = boolstr;
   else
     arg.type = copy_str(typ); //Warning this is going to leak
@@ -727,20 +723,16 @@ op_arg op_arg_gbl_core(int opt, char *data, int dim, const char *typ, int size,
   arg.size = dim * size;
   arg.data = data;
   if (strcmp(typ, "double") == 0 || strcmp(typ, "r8") == 0 ||
-      strcmp(typ, "real*8") == 0 || strcmp(typ, "real(8)") == 0)
+      strcmp(typ, "real*8") == 0)
     arg.type = doublestr;
-  else if (strcmp(typ, "float") == 0  || strcmp(typ, "r4") == 0 ||
-           strcmp(typ, "real*4") == 0 || strcmp(typ, "real(4)") == 0
-           || strcmp(typ, "real") == 0)
+  else if (strcmp(typ, "float") == 0 || strcmp(typ, "r4") == 0 ||
+           strcmp(typ, "real*4") == 0)
     arg.type = floatstr;
   else if (strcmp(typ, "int") == 0 || strcmp(typ, "i4") == 0 ||
-           strcmp(typ, "integer*4") == 0 || strcmp(typ, "integer") == 0
-           || strcmp(typ, "integer(4)") == 0)
+           strcmp(typ, "integer*4") == 0)
     arg.type = intstr;
-  else if (strcmp(typ, "bool") == 0 || strcmp(typ, "logical") == 0)
+  else if (strcmp(typ, "bool") == 0)
     arg.type = boolstr;
-  else
-    arg.type = copy_str(typ); //Warning this is going to leak
 
   arg.acc = acc;
   arg.map_data_d = NULL;
