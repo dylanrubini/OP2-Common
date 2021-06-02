@@ -151,7 +151,7 @@ def op2_gen_mpiseq3(master, date, consts, kernels, hydra, bookleaf, utblock):
 
   accsstring = ['OP_READ','OP_WRITE','OP_RW','OP_INC','OP_MAX','OP_MIN' ]
 
-  grouped = 1
+  grouped = 0
 
   any_soa = 0
   for nk in range (0,len(kernels)):
