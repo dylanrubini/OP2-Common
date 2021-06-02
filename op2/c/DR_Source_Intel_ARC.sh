@@ -18,7 +18,6 @@ export DEBUG=1
 unset OP_AUTO_SOA
 #export OP_AUTO_SOA=1
 
-
 # load modules 
 module load intel/2020a
 module load impi/2019.7.217-iccifort-2020.1.217
