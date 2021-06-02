@@ -225,9 +225,12 @@ ifeq ($(OP2_COMPILER),intel)
   FC              = ifort $(OPT) -DOP2_ARG_POINTERS
   FFLAGS          = -module $(F_INC_MOD) $(DEBUG_FLAGS) -warn interfaces -gen-interfaces
   FMPI_FLAGS	  = -module $(F_MPI_INC_MOD) $(DEBUG_FLAGS) -warn interfaces -gen-interfaces
-  MPICC           = $(MPICC_PATH) $(OPT)
-  MPICXX          = $(MPICXX_PATH) $(OPT)
-  MPIF90          = $(MPIF90_PATH) $(OPT)
+#   MPICC           = $(MPICC_PATH) $(OPT)
+#   MPICXX          = $(MPICXX_PATH) $(OPT)
+#   MPIF90          = $(MPIF90_PATH) $(OPT)
+  MPICC           = mpiicc $(OPT)
+  MPICXX          = mpiicpc $(OPT)
+  MPIF90          = mpiifort $(OPT)  
   NO_MPI_MACRO    = -D NO_MPI
   ALLTARGETS      = clean core hdf5 f_seq f_openmp f_mpi_seq
 else

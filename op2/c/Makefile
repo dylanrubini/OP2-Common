@@ -88,7 +88,9 @@ ifeq ($(OP2_COMPILER),intel)
   endif
   CXX       = icpc
   CXXFLAGS  = $(CCFLAGS)
-  MPICXX    = $(MPICXX_PATH)
+#   MPICXX    = $(MPICXX_PATH)
+# DR: If using intel MPI compiler toolchain
+  MPICXX    =  mpiicpc  #$(MPICXX_PATH)  
   MPIFLAGS  = $(CXXFLAGS)
 else
 ifeq ($(OP2_COMPILER),xl)
