@@ -19,29 +19,29 @@ unset OP_AUTO_SOA
 #export OP_AUTO_SOA=1
 
 # load modules 
-# module load intel/2020a
-# module load OpenMPI/4.0.3-GCC-9.3.0
-# module load ParMETIS/4.0.3-gompi-2020a
-# module load HDF5/1.12.0-gompi-2020a
-# module load Valgrind/3.16.1-gompi-2020a
+module load GCCcore/9.3.0
+module load OpenMPI/4.0.3-GCC-9.3.0
+module load ParMETIS/4.0.3-gompi-2020a
+module load HDF5/1.10.6-gompi-2020a
+module load Valgrind/3.16.1-gompi-2020a
 
-module load GCCcore/8.2.0
-module load OpenMPI/3.1.3-GCC-8.2.0-2.31.1
-module load ParMETIS/4.0.3-gompi-2019a
-module load HDF5/1.10.5-gompi-2019a
+# module load GCCcore/8.2.0
+# module load OpenMPI/3.1.3-GCC-8.2.0-2.31.1
+# module load ParMETIS/4.0.3-gompi-2019a
+# module load HDF5/1.10.5-gompi-2019a
 # module load Valgrind/3.16.1-gompi-2020a
 
 # #External libraries
-# export PARMETIS_INSTALL_PATH=/apps/system/easybuild/software/ParMETIS/4.0.3-gompi-2020a/
-export PARMETIS_INSTALL_PATH=/apps/system/easybuild/software/ParMETIS/4.0.3-gompi-2019a/
+export PARMETIS_INSTALL_PATH=/apps/system/easybuild/software/ParMETIS/4.0.3-gompi-2020a/
+# export PARMETIS_INSTALL_PATH=/apps/system/easybuild/software/ParMETIS/4.0.3-gompi-2019a/
 # export PTSCOTCH_INSTALL_PATH=/opt/ptscotch6_Portland/
-# export HDF5_INSTALL_PATH=/apps/system/easybuild/software/HDF5/1.12.0-gompi-2020a/
-export HDF5_INSTALL_PATH=/apps/system/easybuild/software/HDF5/1.10.5-gompi-2019a/
+export HDF5_INSTALL_PATH=/apps/system/easybuild/software/HDF5/1.10.6-gompi-2020a/
+# export HDF5_INSTALL_PATH=/apps/system/easybuild/software/HDF5/1.10.5-gompi-2019a/
 # #export HDF5_INSTALL_PATH=/home/mudalige/hdf5-1.10.1-intel
 # export HDF5_INSTALL_PATH=/opt/hdf5_Portland/
 # #export LD_LIBRARY_PATH=/opt/parmetis-intel/lib:/opt/ptscotch-intel/lib:/home/mudalige/hdf5-1.10.1-intel/lib/:$LD_LIBRARY_PATH
-# export LD_LIBRARY_PATH=/apps/system/easybuild/software/ParMETIS/4.0.3-gompi-2020a/lib:/apps/system/easybuild/software/HDF5/1.12.0-gompi-2020a/lib:$LD_LIBRARY_PATH
-export LD_LIBRARY_PATH=/apps/system/easybuild/software/ParMETIS/4.0.3-gompi-2019a/lib:/apps/system/easybuild/software/HDF5/1.10.5-gompi-2019a/lib:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=/apps/system/easybuild/software/ParMETIS/4.0.3-gompi-2020a/lib:/apps/system/easybuild/software/HDF5/1.10.6-gompi-2020a/lib:$LD_LIBRARY_PATH
+# export LD_LIBRARY_PATH=/apps/system/easybuild/software/ParMETIS/4.0.3-gompi-2019a/lib:/apps/system/easybuild/software/HDF5/1.10.5-gompi-2019a/lib:$LD_LIBRARY_PATH
 
 
 #NVIDIA CUDA
@@ -60,11 +60,11 @@ export LD_LIBRARY_PATH=/apps/system/easybuild/software/ParMETIS/4.0.3-gompi-2019
 
 #Intel MPI and Compilers
 # module load pgi/19.4
-# export MPI_INSTALL_PATH=/apps/system/easybuild/software/OpenMPI/4.0.3-GCC-9.3.0/
-export MPI_INSTALL_PATH=/apps/system/easybuild/software/OpenMPI/3.1.3-GCC-8.2.0-2.31.1/
+export MPI_INSTALL_PATH=/apps/system/easybuild/software/OpenMPI/4.0.3-GCC-9.3.0/
+# export MPI_INSTALL_PATH=/apps/system/easybuild/software/OpenMPI/3.1.3-GCC-8.2.0-2.31.1/
 # export PATH=/opt/openmpi4_Portland/bin/:$PATH
-# export LD_LIBRARY_PATH=/apps/system/easybuild/software/OpenMPI/4.0.3-GCC-9.3.0/lib/:$LD_LIBRARY_PATH
-export LD_LIBRARY_PATH=/apps/system/easybuild/software/OpenMPI/3.1.3-GCC-8.2.0-2.31.1/lib/:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=/apps/system/easybuild/software/OpenMPI/4.0.3-GCC-9.3.0/lib/:$LD_LIBRARY_PATH
+# export LD_LIBRARY_PATH=/apps/system/easybuild/software/OpenMPI/3.1.3-GCC-8.2.0-2.31.1/lib/:$LD_LIBRARY_PATH
 # export PATH=/opt/pgi/linux86-64/2019/bin:$PATH
 #source /opt/compilers/intel/intelPS-2015/composerxe/bin/compilervars.sh intel64
 #source /opt/compilers/intel/intelPS-2015/impi_latest/intel64/bin/mpivars.sh intel64

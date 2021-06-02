@@ -23,10 +23,16 @@
 ## module load Valgrind/3.16.1-iimpi-2020a
 
 module purge
-module load intel/2020a
-module load impi/2019.7.217-iccifort-2020.1.217
-module load ParMETIS/4.0.3-iimpi-2020a
-module load HDF5/1.10.5-iimpi-2020a
-module load Valgrind/3.16.1-iimpi-2020a
+# module load intel/2020a
+# module load impi/2019.7.217-iccifort-2020.1.217
+# module load ParMETIS/4.0.3-iimpi-2020a
+# module load HDF5/1.10.5-iimpi-2020a
+# module load Valgrind/3.16.1-iimpi-2020a
+
+module load GCCcore/9.3.0
+module load OpenMPI/4.0.3-GCC-9.3.0
+module load ParMETIS/4.0.3-gompi-2020a
+module load HDF5/1.10.6-gompi-2020a
+module load Valgrind/3.16.1-gompi-2020a
 
 mpirun $MPI_HOSTS ./airfoil_hdf5_mpi_vec
