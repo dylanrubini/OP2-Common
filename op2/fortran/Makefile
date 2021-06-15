@@ -128,6 +128,12 @@ ifeq ($(NV_ARCH),Volta)
   CODE_GEN_CUDA=-gencode arch=compute_70,code=sm_70
 #  PGI_CUDA_FORT_FLAGS=-Mcuda=cuda5.5,cc35
    PGI_CUDA_FORT_FLAGS=-Mcuda=cc70,cuda10.2
+else
+ifeq ($(NV_ARCH),Turing)
+  CODE_GEN_CUDA=-gencode arch=compute_75,code=sm_75
+#  PGI_CUDA_FORT_FLAGS=-Mcuda=cuda5.5,cc35
+   PGI_CUDA_FORT_FLAGS=-Mcuda=cc75, fastmath #cuda11.1  
+endif    
 endif
 endif
 endif

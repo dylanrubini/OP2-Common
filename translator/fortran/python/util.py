@@ -555,7 +555,7 @@ def find_function_calls(text, attr, name=''):
     curr_pos = curr_pos-1
     arglist = text[openbracket:curr_pos]
     #find the file containing the implementation
-    subr_file =  os.popen('grep -Rilw --include "*.F90" --include "*.F" --exclude "*kernel.*" "subroutine '+fun_name+'\\b" . | head -n1').read().strip()
+    subr_file =  os.popen('grep -Rilw --include "*.F90" --include "*.F" --include "kdtree3.f90" --exclude "*kernel.*" "subroutine '+fun_name+'\\b" . | head -n1').read().strip()
     if (len(subr_file) == 0) or (not os.path.exists(subr_file)):
       print('Error, subroutine '+fun_name+' implementation not found in files, check parser!')
       exit(1)
