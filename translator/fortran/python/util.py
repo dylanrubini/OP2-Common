@@ -465,7 +465,7 @@ def get_kernel(text, name):
   i = re.search(r'\n\s*\bsubroutine\b\s*'+name+r'\b', text, re.IGNORECASE)
   if i:
     #attempt 1: find end subroutine
-    j = re.search(r'\n\s*\bend\s+subroutine\b'+name+r'\b', text[i.start():], re.IGNORECASE)
+    j = re.search(r'\n\s*\bend\s+subroutine\b\s*'+name+r'\b', text[i.start():], re.IGNORECASE)
     if j:
       return text[i.start():i.start()+j.end()]
     #attempt 2: find next subroutine

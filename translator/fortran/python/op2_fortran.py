@@ -1046,7 +1046,10 @@ if npart==0 and nhdf5>0:
 
 ########################## generate constants ############################
 
-fid = open('constant_list_set_cuda.inc', 'w')
+if utblock:
+  fid = open('./Common/constant_list_set_cuda.inc', 'w')
+else:
+  fid = open('constant_list_set_cuda.inc', 'w')  
 prefix=''
 for const in consts:
   fid.write(prefix+'if (name.eq.'+const['name2']+') then\n')
