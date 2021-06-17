@@ -10,6 +10,7 @@ program AIRFOIL
   use BRES_CALC_MODULE
   use UPDATE_MODULE
    
+  use OP2_FORTRAN_RT_SUPPORT  
   use OP2_CONSTANTS
   use AIRFOIL_SEQ
   use IO
@@ -43,18 +44,19 @@ program AIRFOIL
 
   ! integer reference (valid inside the OP2 library) for op_data
   type(op_dat) :: p_bound, p_x, p_q, p_qold, p_adt, p_res
-  type(op_dat) :: p_test
+  type(op_dat) :: p_test, temp_dat
 
 
   ! arrays used in data
   integer(4), dimension(:), allocatable, target :: ecell, bound, edge, bedge, becell, cell
   real(8), dimension(1:2) :: rms
 
-  integer(4) :: debugiter, retDebug
+  integer(4) :: debugiter, retDebug, free_out
   real(8) :: datad
 
   ! local variables for constant initialization
-  real(8) :: p, r, u, e
+  real(8) :: p, r, u, e, start_time_temp_alloc(iterationNumber), end_time_temp_alloc(iterationNumber)
+  real(8) :: start_time_temp_free(iterationNumber), end_time_temp_free(iterationNumber)
 
   integer(4) :: status
 
@@ -123,7 +125,7 @@ program AIRFOIL
 
   !call op_dump_to_hdf5("new_grid_out.h5");
 
-  call op_partition ('PARMETIS','KWAY', edges, pecell, p_x)
+  call op_partition ('PTSCOTCH','KWAY', edges, pecell, p_x)
 
   ncelli  = op_get_size(cells)
   ncellr = real(ncelli)
@@ -141,6 +143,13 @@ program AIRFOIL
                       & op_arg_dat(p_qold,-1,OP_ID,4,"real(8)",OP_WRITE))
 
 
+     start_time_temp_alloc(niter) = 0.D0
+     end_time_temp_alloc(niter)   = 0.D0
+     call cpu_time(start_time_temp_alloc(niter))
+     call op_decl_dat_temp(cells, 5, 'real(8)', rms, temp_dat, 'temp_dat' )      
+     call cpu_time(end_time_temp_alloc(niter))   
+     ! write(*,*) 'allocate time = ', start_time_temp - end_time_temp   
+
     ! predictor/corrector update loop
 
     do k = 1, 2
@@ -153,6 +162,7 @@ program AIRFOIL
                        & op_arg_dat(p_x,3,pcell,2,"real(8)",OP_READ),  &
                        & op_arg_dat(p_x,4,pcell,2,"real(8)",OP_READ),  &
                        & op_arg_dat(p_q,-1,OP_ID,4,"real(8)",OP_READ),  &
+                       & op_arg_dat(temp_dat,-1,OP_ID,5,"real(8)",OP_INC),  &
                        & op_arg_dat(p_adt,-1,OP_ID,1,"real(8)",OP_WRITE))
 
 
@@ -214,6 +224,12 @@ program AIRFOIL
       end if
     end if
 
+    start_time_temp_free(niter) = 0.D0
+     end_time_temp_free(niter)   = 0.D0
+     call cpu_time(start_time_temp_free(niter))
+      free_out = op_free_dat_temp(temp_dat)
+     call cpu_time(end_time_temp_free(niter))   
+     ! write(*,*) 'free time = ', start_time_temp - end_time_temp       
 
 
   end do ! external loop
@@ -222,6 +238,8 @@ program AIRFOIL
   call op_timing_output ()
   if (op_is_root() .eq. 1) then
     write (*,*) 'Max total runtime =', endTime - startTime,'seconds'
+    write(*,*) 'total allocate time = ', abs(sum(start_time_temp_alloc - end_time_temp_alloc))
+    write(*,*) 'total free time = ',     abs(sum(start_time_temp_free  - end_time_temp_free))    
   end if
   call op_exit (  )
 end program AIRFOIL

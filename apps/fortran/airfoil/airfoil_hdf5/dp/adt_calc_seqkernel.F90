@@ -19,13 +19,15 @@ SUBROUTINE op_wrap_adt_calc( &
   & opDat1Local, &
   & opDat5Local, &
   & opDat6Local, &
+  & opDat7Local, &
   & opDat1Map, &
   & opDat1MapDim, &
   & bottom,top)
   implicit none
   real(8) opDat1Local(2,*)
   real(8) opDat5Local(4,*)
-  real(8) opDat6Local(1,*)
+  real(8) opDat6Local(5,*)
+  real(8) opDat7Local(1,*)
   INTEGER(kind=4) opDat1Map(*)
   INTEGER(kind=4) opDat1MapDim
   INTEGER(kind=4) bottom,top,i1
@@ -43,7 +45,8 @@ SUBROUTINE op_wrap_adt_calc( &
     & opDat1Local(1,map3idx), &
     & opDat1Local(1,map4idx), &
     & opDat5Local(1,i1+1), &
-    & opDat6Local(1,i1+1) &
+    & opDat6Local(1,i1+1), &
+    & opDat7Local(1,i1+1) &
     & )
   END DO
 END SUBROUTINE
@@ -53,7 +56,8 @@ SUBROUTINE adt_calc_host( userSubroutine, set, &
   & opArg3, &
   & opArg4, &
   & opArg5, &
-  & opArg6 )
+  & opArg6, &
+  & opArg7 )
 
   IMPLICIT NONE
   character(kind=c_char,len=*), INTENT(IN) :: userSubroutine
@@ -65,8 +69,9 @@ SUBROUTINE adt_calc_host( userSubroutine, set, &
   type ( op_arg ) , INTENT(IN) :: opArg4
   type ( op_arg ) , INTENT(IN) :: opArg5
   type ( op_arg ) , INTENT(IN) :: opArg6
+  type ( op_arg ) , INTENT(IN) :: opArg7
 
-  type ( op_arg ) , DIMENSION(6) :: opArgArray
+  type ( op_arg ) , DIMENSION(7) :: opArgArray
   INTEGER(kind=4) :: numberOfOpDats
   INTEGER(kind=4), DIMENSION(1:8) :: timeArrayStart
   INTEGER(kind=4), DIMENSION(1:8) :: timeArrayEnd
@@ -87,11 +92,14 @@ SUBROUTINE adt_calc_host( userSubroutine, set, &
   real(8), POINTER, DIMENSION(:) :: opDat6Local
   INTEGER(kind=4) :: opDat6Cardinality
 
+  real(8), POINTER, DIMENSION(:) :: opDat7Local
+  INTEGER(kind=4) :: opDat7Cardinality
+
 
   INTEGER(kind=4) :: i1
   REAL(kind=4) :: dataTransfer
 
-  numberOfOpDats = 6
+  numberOfOpDats = 7
 
   opArgArray(1) = opArg1
   opArgArray(2) = opArg2
@@ -99,12 +107,15 @@ SUBROUTINE adt_calc_host( userSubroutine, set, &
   opArgArray(4) = opArg4
   opArgArray(5) = opArg5
   opArgArray(6) = opArg6
+  opArgArray(7) = opArg7
 
+#ifdef COMM_PERF
   returnSetKernelTiming = setKernelTime(1 , userSubroutine//C_NULL_CHAR, &
   & 0.0_8, 0.00000_4,0.00000_4, 0)
   call op_timers_core(startTime)
+#endif
 
-  n_upper = op_mpi_halo_exchanges_grouped(set%setCPtr,numberOfOpDats,opArgArray,1)
+  n_upper = op_mpi_halo_exchanges(set%setCPtr,numberOfOpDats,opArgArray)
 
   opSetCore => set%setPtr
 
@@ -112,42 +123,49 @@ SUBROUTINE adt_calc_host( userSubroutine, set, &
   opDat1MapDim = getMapDimFromOpArg(opArg1)
   opDat5Cardinality = opArg5%dim * getSetSizeFromOpArg(opArg5)
   opDat6Cardinality = opArg6%dim * getSetSizeFromOpArg(opArg6)
+  opDat7Cardinality = opArg7%dim * getSetSizeFromOpArg(opArg7)
   CALL c_f_pointer(opArg1%data,opDat1Local,(/opDat1Cardinality/))
   CALL c_f_pointer(opArg1%map_data,opDat1Map,(/opSetCore%size*opDat1MapDim/))
   CALL c_f_pointer(opArg5%data,opDat5Local,(/opDat5Cardinality/))
   CALL c_f_pointer(opArg6%data,opDat6Local,(/opDat6Cardinality/))
+  CALL c_f_pointer(opArg7%data,opDat7Local,(/opDat7Cardinality/))
 
 
   CALL op_wrap_adt_calc( &
   & opDat1Local, &
   & opDat5Local, &
   & opDat6Local, &
+  & opDat7Local, &
   & opDat1Map, &
   & opDat1MapDim, &
   & 0, opSetCore%core_size)
-  CALL op_mpi_wait_all_grouped(numberOfOpDats,opArgArray,1)
+  CALL op_mpi_wait_all(numberOfOpDats,opArgArray)
   CALL op_wrap_adt_calc( &
   & opDat1Local, &
   & opDat5Local, &
   & opDat6Local, &
+  & opDat7Local, &
   & opDat1Map, &
   & opDat1MapDim, &
   & opSetCore%core_size, n_upper)
   IF ((n_upper .EQ. 0) .OR. (n_upper .EQ. opSetCore%core_size)) THEN
-    CALL op_mpi_wait_all_grouped(numberOfOpDats,opArgArray,1)
+    CALL op_mpi_wait_all(numberOfOpDats,opArgArray)
   END IF
 
 
   CALL op_mpi_set_dirtybit(numberOfOpDats,opArgArray)
 
+#ifdef COMM_PERF
   call op_timers_core(endTime)
 
   dataTransfer = 0.0
   dataTransfer = dataTransfer + opArg1%size * MIN(n_upper,getSetSizeFromOpArg(opArg1))
   dataTransfer = dataTransfer + opArg5%size * MIN(n_upper,getSetSizeFromOpArg(opArg5))
-  dataTransfer = dataTransfer + opArg6%size * MIN(n_upper,getSetSizeFromOpArg(opArg6))
+  dataTransfer = dataTransfer + opArg6%size * MIN(n_upper,getSetSizeFromOpArg(opArg6)) * 2.d0
+  dataTransfer = dataTransfer + opArg7%size * MIN(n_upper,getSetSizeFromOpArg(opArg7))
   dataTransfer = dataTransfer + n_upper * opDat1MapDim * 4.d0
   returnSetKernelTiming = setKernelTime(1 , userSubroutine//C_NULL_CHAR, &
   & endTime-startTime, dataTransfer, 0.00000_4, 1)
+#endif
 END SUBROUTINE
 END MODULE

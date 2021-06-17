@@ -123,11 +123,13 @@ SUBROUTINE res_calc_host( userSubroutine, set, &
   opArgArray(7) = opArg7
   opArgArray(8) = opArg8
 
+#ifdef COMM_PERF
   returnSetKernelTiming = setKernelTime(2 , userSubroutine//C_NULL_CHAR, &
   & 0.0_8, 0.00000_4,0.00000_4, 0)
   call op_timers_core(startTime)
+#endif
 
-  n_upper = op_mpi_halo_exchanges_grouped(set%setCPtr,numberOfOpDats,opArgArray,1)
+  n_upper = op_mpi_halo_exchanges(set%setCPtr,numberOfOpDats,opArgArray)
 
   opSetCore => set%setPtr
 
@@ -159,7 +161,7 @@ SUBROUTINE res_calc_host( userSubroutine, set, &
   & opDat3Map, &
   & opDat3MapDim, &
   & 0, opSetCore%core_size)
-  CALL op_mpi_wait_all_grouped(numberOfOpDats,opArgArray,1)
+  CALL op_mpi_wait_all(numberOfOpDats,opArgArray)
   CALL op_wrap_res_calc( &
   & opDat1Local, &
   & opDat3Local, &
@@ -171,12 +173,13 @@ SUBROUTINE res_calc_host( userSubroutine, set, &
   & opDat3MapDim, &
   & opSetCore%core_size, n_upper)
   IF ((n_upper .EQ. 0) .OR. (n_upper .EQ. opSetCore%core_size)) THEN
-    CALL op_mpi_wait_all_grouped(numberOfOpDats,opArgArray,1)
+    CALL op_mpi_wait_all(numberOfOpDats,opArgArray)
   END IF
 
 
   CALL op_mpi_set_dirtybit(numberOfOpDats,opArgArray)
 
+#ifdef COMM_PERF
   call op_timers_core(endTime)
 
   dataTransfer = 0.0
@@ -188,5 +191,6 @@ SUBROUTINE res_calc_host( userSubroutine, set, &
   dataTransfer = dataTransfer + n_upper * opDat3MapDim * 4.d0
   returnSetKernelTiming = setKernelTime(2 , userSubroutine//C_NULL_CHAR, &
   & endTime-startTime, dataTransfer, 0.00000_4, 1)
+#endif
 END SUBROUTINE
 END MODULE

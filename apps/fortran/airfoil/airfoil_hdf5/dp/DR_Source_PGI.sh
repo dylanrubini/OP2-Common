@@ -7,8 +7,10 @@ unset LD_LIBRARY_PATH
 . ~/.bashrc
 
 #OP2 specifics
-export OP2_COMPILER=pgi
-export OP2_INSTALL_PATH=/datapart1/Forked-OP2/OP2-Common/op2
+# OP2_INSTALL_PATH_MINUS1="/home/orie3565/Documents/OP2-Common/"
+OP2_INSTALL_PATH_MINUS1="/datapart1/Forked-OP2/OP2-Common/"
+OP2_DIR="op2/"
+export OP2_INSTALL_PATH=$OP2_INSTALL_PATH_MINUS1$OP2_DIR
 export DEBUG=1
 # unset OP_AUTO_SOA
 # export OP_AUTO_SOA=1
@@ -60,7 +62,10 @@ export MPIFC=/opt/openmpi4_Portland/bin/mpif90
 # make clean 
 # make directories
 
-# ./python_generate.sh 
+# generate MPI, CUDA etc kernels with python source to source translator 
+$OP2_INSTALL_PATH_MINUS1/translator/fortran/python/op2_fortran.py airfoil_hdf5.F90
+
+make clean
 
 # make utblockPP utblock utblock_mpi utblockPost
 # make utblockPost
@@ -69,7 +74,7 @@ export MPIFC=/opt/openmpi4_Portland/bin/mpif90
 # make utblockPP
 # make utblock
 # make utblock_mpi_genseq
-make all
+make airfoil_hdf5_cuda
 # make utblockPP
 # make utblockPost
 # make utblock_genseq

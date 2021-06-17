@@ -68,11 +68,13 @@ SUBROUTINE save_soln_host( userSubroutine, set, &
   opArgArray(1) = opArg1
   opArgArray(2) = opArg2
 
+#ifdef COMM_PERF
   returnSetKernelTiming = setKernelTime(0 , userSubroutine//C_NULL_CHAR, &
   & 0.0_8, 0.00000_4,0.00000_4, 0)
   call op_timers_core(startTime)
+#endif
 
-  n_upper = op_mpi_halo_exchanges_grouped(set%setCPtr,numberOfOpDats,opArgArray,1)
+  n_upper = op_mpi_halo_exchanges(set%setCPtr,numberOfOpDats,opArgArray)
 
   opSetCore => set%setPtr
 
@@ -86,18 +88,19 @@ SUBROUTINE save_soln_host( userSubroutine, set, &
   & opDat1Local, &
   & opDat2Local, &
   & 0, opSetCore%core_size)
-  CALL op_mpi_wait_all_grouped(numberOfOpDats,opArgArray,1)
+  CALL op_mpi_wait_all(numberOfOpDats,opArgArray)
   CALL op_wrap_save_soln( &
   & opDat1Local, &
   & opDat2Local, &
   & opSetCore%core_size, n_upper)
   IF ((n_upper .EQ. 0) .OR. (n_upper .EQ. opSetCore%core_size)) THEN
-    CALL op_mpi_wait_all_grouped(numberOfOpDats,opArgArray,1)
+    CALL op_mpi_wait_all(numberOfOpDats,opArgArray)
   END IF
 
 
   CALL op_mpi_set_dirtybit(numberOfOpDats,opArgArray)
 
+#ifdef COMM_PERF
   call op_timers_core(endTime)
 
   dataTransfer = 0.0
@@ -105,5 +108,6 @@ SUBROUTINE save_soln_host( userSubroutine, set, &
   dataTransfer = dataTransfer + opArg2%size * opSetCore%size
   returnSetKernelTiming = setKernelTime(0 , userSubroutine//C_NULL_CHAR, &
   & endTime-startTime, dataTransfer, 0.00000_4, 1)
+#endif
 END SUBROUTINE
 END MODULE
