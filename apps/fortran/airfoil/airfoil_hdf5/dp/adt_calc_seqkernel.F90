@@ -109,11 +109,9 @@ SUBROUTINE adt_calc_host( userSubroutine, set, &
   opArgArray(6) = opArg6
   opArgArray(7) = opArg7
 
-#ifdef COMM_PERF
   returnSetKernelTiming = setKernelTime(1 , userSubroutine//C_NULL_CHAR, &
   & 0.0_8, 0.00000_4,0.00000_4, 0)
   call op_timers_core(startTime)
-#endif
 
   n_upper = op_mpi_halo_exchanges(set%setCPtr,numberOfOpDats,opArgArray)
 
@@ -155,7 +153,6 @@ SUBROUTINE adt_calc_host( userSubroutine, set, &
 
   CALL op_mpi_set_dirtybit(numberOfOpDats,opArgArray)
 
-#ifdef COMM_PERF
   call op_timers_core(endTime)
 
   dataTransfer = 0.0
@@ -166,6 +163,5 @@ SUBROUTINE adt_calc_host( userSubroutine, set, &
   dataTransfer = dataTransfer + n_upper * opDat1MapDim * 4.d0
   returnSetKernelTiming = setKernelTime(1 , userSubroutine//C_NULL_CHAR, &
   & endTime-startTime, dataTransfer, 0.00000_4, 1)
-#endif
 END SUBROUTINE
 END MODULE

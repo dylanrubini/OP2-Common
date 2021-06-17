@@ -93,11 +93,9 @@ SUBROUTINE update_host( userSubroutine, set, &
   opArgArray(4) = opArg4
   opArgArray(5) = opArg5
 
-#ifdef COMM_PERF
   returnSetKernelTiming = setKernelTime(4 , userSubroutine//C_NULL_CHAR, &
   & 0.0_8, 0.00000_4,0.00000_4, 0)
   call op_timers_core(startTime)
-#endif
 
   n_upper = op_mpi_halo_exchanges(set%setCPtr,numberOfOpDats,opArgArray)
 
@@ -138,7 +136,6 @@ SUBROUTINE update_host( userSubroutine, set, &
 
   CALL op_mpi_reduce_double(opArg5,opArg5%data)
 
-#ifdef COMM_PERF
   call op_timers_core(endTime)
 
   dataTransfer = 0.0
@@ -149,6 +146,5 @@ SUBROUTINE update_host( userSubroutine, set, &
   dataTransfer = dataTransfer + opArg5%size * 2.d0
   returnSetKernelTiming = setKernelTime(4 , userSubroutine//C_NULL_CHAR, &
   & endTime-startTime, dataTransfer, 0.00000_4, 1)
-#endif
 END SUBROUTINE
 END MODULE

@@ -1251,7 +1251,8 @@ def op2_gen_cuda_color2(master, date, consts, kernels, hydra, bookleaf, utblock)
       code('opArgArray('+str(g_m+1)+') = opArg'+str(g_m+1))
     code('')
 
-    code('#ifdef COMM_PERF',1)   
+    if utblock:
+      code('#ifdef COMM_PERF',1)   
     code('returnSetKernelTiming = setKernelTime('+str(nk)+' , userSubroutine//C_NULL_CHAR, &')
     code('& 0.0_8, 0.00000_4,0.00000_4, 0)')
     #code('print *,"'+name+'"')
@@ -1278,7 +1279,8 @@ def op2_gen_cuda_color2(master, date, consts, kernels, hydra, bookleaf, utblock)
     #   code(const+'_OP2CONSTANT = '+const)
 
     code('call op_timers_core(startTime)')
-    code('#endif',1)     
+    if utblock:
+      code('#endif',1)     
     code('')
     #code('n_upper = op_mpi_halo_exchanges_cuda(set%setCPtr,numberOfOpDats,opArgArray)')
     code('n_upper = op_mpi_halo_exchanges_grouped(set%setCPtr,numberOfOpDats,opArgArray,2)')
@@ -1561,7 +1563,8 @@ def op2_gen_cuda_color2(master, date, consts, kernels, hydra, bookleaf, utblock)
     IF('istat.ne.0')
     code('print *,cudaGetErrorString(istat)')
     ENDIF()
-    code('#ifdef COMM_PERF',1)    
+    if utblock:
+      code('#ifdef COMM_PERF',1)    
     code('call op_timers_core(endTime)')
     code('')
     if ninds == 0:
@@ -1589,7 +1592,8 @@ def op2_gen_cuda_color2(master, date, consts, kernels, hydra, bookleaf, utblock)
       code('& endTime-startTime, dataTransfer, 0.00000_4, 1)')
 
     code('calledTimes = calledTimes + 1')
-    code('#endif',1)
+    if utblock:
+      code('#endif',1)
     depth = depth - 2
     code('END SUBROUTINE')
     code('')
