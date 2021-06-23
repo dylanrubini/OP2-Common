@@ -51,7 +51,8 @@ module OP2_Fortran_RT_Support
     type(c_ptr) ::         set
     integer(kind=c_int) :: nargs, ninds, ninds_staged, part_size
     type(c_ptr) ::         in_maps
-    type(c_ptr) ::         dats
+    type(c_ptr) ::         dats_size
+    type(c_ptr) ::         dats_dim
     type(c_ptr) ::         idxs
     type(c_ptr) ::         optflags
     type(c_ptr) ::         accs

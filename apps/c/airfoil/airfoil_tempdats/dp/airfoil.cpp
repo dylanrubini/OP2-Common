@@ -220,18 +220,19 @@ int main(int argc, char **argv) {
 
   niter = 1000;
 
-  for (int iter = 1; iter <= niter; iter++) {
-
     double *tmp_elem = NULL;
     op_dat p_res = op_decl_dat_temp(cells, 4, "double", tmp_elem, "p_res");
     op_dat p_adt = op_decl_dat_temp(cells, 1, "double", tmp_elem, "p_adt");
     op_dat p_qold = op_decl_dat_temp(cells, 4, "double", qold, "p_qold");
+  for (int iter = 1; iter <= niter; iter++) {
+
 
     // save old flow solution
 
     op_par_loop(save_soln, "save_soln", cells,
                 op_arg_dat(p_q, -1, OP_ID, 4, "double", OP_READ),
-                op_arg_dat(p_qold, -1, OP_ID, 4, "double", OP_WRITE));
+                op_arg_dat(p_qold, -1, OP_ID, 4, "double", OP_WRITE),
+                op_arg_dat(p_res, -1, OP_ID, 4, "double", OP_WRITE));
 
     // predictor/corrector update loop
 
@@ -298,13 +299,13 @@ int main(int argc, char **argv) {
       }
     }
 
+  }
     if (op_free_dat_temp(p_res) < 0)
       op_printf("Error: temporary op_dat %s cannot be removed\n", p_res->name);
     if (op_free_dat_temp(p_adt) < 0)
       op_printf("Error: temporary op_dat %s cannot be removed\n", p_adt->name);
     if (op_free_dat_temp(p_qold) < 0)
       op_printf("Error: temporary op_dat %s cannot be removed\n", p_qold->name);
-  }
 
   op_timers(&cpu_t2, &wall_t2);
   op_timing_output();

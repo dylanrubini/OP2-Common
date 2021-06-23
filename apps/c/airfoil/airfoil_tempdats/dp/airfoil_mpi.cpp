@@ -373,7 +373,8 @@ int main(int argc, char **argv) {
     // save old flow solution
     op_par_loop(save_soln, "save_soln", cells,
                 op_arg_dat(p_q, -1, OP_ID, 4, "double", OP_READ),
-                op_arg_dat(p_qold, -1, OP_ID, 4, "double", OP_WRITE));
+                op_arg_dat(p_qold, -1, OP_ID, 4, "double", OP_WRITE),
+                op_arg_dat(p_res, -1, OP_ID, 4, "double", OP_WRITE));
 
     //  predictor/corrector update loop
 

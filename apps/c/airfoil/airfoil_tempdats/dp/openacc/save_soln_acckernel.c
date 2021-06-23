@@ -3,26 +3,27 @@
 //
 
 //user function
-int direct_save_soln_stride_OP2CONSTANT;
-int direct_save_soln_stride_OP2HOST = -1;
 //user function
 //#pragma acc routine
-inline void save_soln_openacc( const double *q, double *qold) {
-  for (int n = 0; n < 4; n++)
-    qold[(n)*direct_save_soln_stride_OP2CONSTANT] =
-        q[(n)*direct_save_soln_stride_OP2CONSTANT];
+inline void save_soln_openacc( const double *q, double *qold, double *res) {
+  for (int n = 0; n < 4; n++) {
+    qold[n] = q[n];
+    res[n] = 0.0;
+  }
 }
 
 // host stub function
 void op_par_loop_save_soln(char const *name, op_set set,
   op_arg arg0,
-  op_arg arg1){
+  op_arg arg1,
+  op_arg arg2){
 
-  int nargs = 2;
-  op_arg args[2];
+  int nargs = 3;
+  op_arg args[3];
 
   args[0] = arg0;
   args[1] = arg1;
+  args[2] = arg2;
 
   // initialise timers
   double cpu_t1, cpu_t2, wall_t1, wall_t2;
@@ -38,21 +39,21 @@ void op_par_loop_save_soln(char const *name, op_set set,
 
   int set_size = op_mpi_halo_exchanges_cuda(set, nargs, args);
 
-  if (set_size > 0) {
 
-    if ((OP_kernels[0].count == 1) ||
-        (direct_save_soln_stride_OP2HOST != getSetSizeFromOpArg(&arg0))) {
-      direct_save_soln_stride_OP2HOST = getSetSizeFromOpArg(&arg0);
-      direct_save_soln_stride_OP2CONSTANT = direct_save_soln_stride_OP2HOST;
-    }
+  if (set_size >0) {
+
 
     //Set up typed device pointers for OpenACC
 
     double* data0 = (double*)arg0.data_d;
     double* data1 = (double*)arg1.data_d;
-    #pragma acc parallel loop independent deviceptr(data0,data1)
+    double* data2 = (double*)arg2.data_d;
+    #pragma acc parallel loop independent deviceptr(data0,data1,data2)
     for ( int n=0; n<set->size; n++ ){
-      save_soln_openacc(&data0[n], &data1[n]);
+      save_soln_openacc(
+        &data0[4*n],
+        &data1[4*n],
+        &data2[4*n]);
     }
   }
 
@@ -64,4 +65,5 @@ void op_par_loop_save_soln(char const *name, op_set set,
   OP_kernels[0].time     += wall_t2 - wall_t1;
   OP_kernels[0].transfer += (float)set->size * arg0.size;
   OP_kernels[0].transfer += (float)set->size * arg1.size * 2.0f;
+  OP_kernels[0].transfer += (float)set->size * arg2.size * 2.0f;
 }

@@ -79,6 +79,7 @@ extern "C" {
 
 void op_par_loop_save_soln(char const *, op_set,
   op_arg,
+  op_arg,
   op_arg );
 
 void op_par_loop_adt_calc(char const *, op_set,
@@ -201,7 +202,7 @@ static void check_scan(int items_received, int items_expected) {
 
 int main(int argc, char **argv) {
   // OP initialisation
-  op_init_soa(argc, argv, 2, 1);
+  op_init(argc, argv, 2);
 
   // MPI for user I/O
   int my_rank;
@@ -429,7 +430,8 @@ int main(int argc, char **argv) {
     // save old flow solution
     op_par_loop_save_soln("save_soln",cells,
                 op_arg_dat(p_q,-1,OP_ID,4,"double",OP_READ),
-                op_arg_dat(p_qold,-1,OP_ID,4,"double",OP_WRITE));
+                op_arg_dat(p_qold,-1,OP_ID,4,"double",OP_WRITE),
+                op_arg_dat(p_res,-1,OP_ID,4,"double",OP_WRITE));
 
     //  predictor/corrector update loop
 

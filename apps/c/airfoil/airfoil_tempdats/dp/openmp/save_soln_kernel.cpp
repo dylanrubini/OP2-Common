@@ -8,19 +8,21 @@
 // host stub function
 void op_par_loop_save_soln(char const *name, op_set set,
   op_arg arg0,
-  op_arg arg1){
+  op_arg arg1,
+  op_arg arg2){
 
-  int nargs = 2;
-  op_arg args[2];
+  int nargs = 3;
+  op_arg args[3];
 
   args[0] = arg0;
   args[1] = arg1;
+  args[2] = arg2;
 
   // initialise timers
   double cpu_t1, cpu_t2, wall_t1, wall_t2;
   op_timing_realloc(0);
-  OP_kernels[0].name = name;
-  OP_kernels[0].count += 1;
+  OP_kernels[0].name      = name;
+  OP_kernels[0].count    += 1;
   op_timers_core(&cpu_t1, &wall_t1);
 
 
@@ -36,7 +38,7 @@ void op_par_loop_save_soln(char const *name, op_set set,
     int nthreads = 1;
   #endif
 
-    if (set_size > 0) {
+  if (set_size >0) {
 
     // execute plan
     #pragma omp parallel for
@@ -46,7 +48,8 @@ void op_par_loop_save_soln(char const *name, op_set set,
       for ( int n=start; n<finish; n++ ){
         save_soln(
           &((double*)arg0.data)[4*n],
-          &((double*)arg1.data)[4*n]);
+          &((double*)arg1.data)[4*n],
+          &((double*)arg2.data)[4*n]);
       }
     }
   }
@@ -59,4 +62,5 @@ void op_par_loop_save_soln(char const *name, op_set set,
   OP_kernels[0].time     += wall_t2 - wall_t1;
   OP_kernels[0].transfer += (float)set->size * arg0.size;
   OP_kernels[0].transfer += (float)set->size * arg1.size * 2.0f;
+  OP_kernels[0].transfer += (float)set->size * arg2.size * 2.0f;
 }

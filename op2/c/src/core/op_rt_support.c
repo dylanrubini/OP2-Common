@@ -53,7 +53,8 @@ extern int OP_kern_max;
 void op_rt_exit() {
   /* free storage for plans */
   for (int ip = 0; ip < OP_plan_index; ip++) {
-    free(OP_plans[ip].dats);
+    free(OP_plans[ip].dats_size);
+    free(OP_plans[ip].dats_dim);
     free(OP_plans[ip].idxs);
     free(OP_plans[ip].maps);
     free(OP_plans[ip].accs);
@@ -319,14 +320,14 @@ op_plan *op_plan_core(char const *name, op_set set, int part_size, int nargs,
         (part_size == OP_plans[ip].part_size)) {
       match = 1;
       for (int m = 0; m < nargs; m++) {
-        if (args[m].dat != NULL && OP_plans[ip].dats[m] != NULL)
-          match = match && (args[m].dat->size == OP_plans[ip].dats[m]->size) &&
-                  (args[m].dat->dim == OP_plans[ip].dats[m]->dim) &&
+        if (args[m].dat != NULL)
+          match = match && (args[m].dat->size == OP_plans[ip].dats_size[m]) &&
+                  (args[m].dat->dim == OP_plans[ip].dats_dim[m]) &&
                   (args[m].map == OP_plans[ip].maps[m]) &&
                   (args[m].idx == OP_plans[ip].idxs[m]) &&
                   (args[m].acc == OP_plans[ip].accs[m]);
         else
-          match = match && (args[m].dat == OP_plans[ip].dats[m]) &&
+          match = match &&
                   (args[m].map == OP_plans[ip].maps[m]) &&
                   (args[m].idx == OP_plans[ip].idxs[m]) &&
                   (args[m].acc == OP_plans[ip].accs[m]);
@@ -463,7 +464,8 @@ op_plan *op_plan_core(char const *name, op_set set, int part_size, int nargs,
 
   /* allocate memory for new execution plan and store input arguments */
 
-  OP_plans[ip].dats = (op_dat *)op_malloc(nargs * sizeof(op_dat));
+  OP_plans[ip].dats_size = (int *)op_calloc(nargs, sizeof(int));
+  OP_plans[ip].dats_dim = (int *)op_calloc(nargs, sizeof(int));
   OP_plans[ip].idxs = (int *)op_malloc(nargs * sizeof(int));
   OP_plans[ip].optflags = (int *)op_malloc(nargs * sizeof(int));
   OP_plans[ip].maps = (op_map *)op_malloc(nargs * sizeof(op_map));
@@ -510,7 +512,8 @@ op_plan *op_plan_core(char const *name, op_set set, int part_size, int nargs,
     else
       OP_plans[ip].loc_maps[m] = NULL;
 
-    OP_plans[ip].dats[m] = args[m].dat;
+    OP_plans[ip].dats_size[m] = args[m].dat->size;
+    OP_plans[ip].dats_dim[m] = args[m].dat->dim;
     OP_plans[ip].idxs[m] = args[m].idx;
     OP_plans[ip].optflags[m] = args[m].opt;
     OP_plans[ip].maps[m] = args[m].map;
@@ -543,7 +546,8 @@ op_plan *op_plan_core(char const *name, op_set set, int part_size, int nargs,
 
   /* define aliases */
 
-  op_dat *dats = OP_plans[ip].dats;
+  int *dats_size = OP_plans[ip].dats_size;
+  int *dats_dim = OP_plans[ip].dats_dim;
   int *idxs = OP_plans[ip].idxs;
   op_map *maps = OP_plans[ip].maps;
   op_access *accs = OP_plans[ip].accs;
@@ -928,7 +932,7 @@ op_plan *op_plan_core(char const *name, op_set set, int part_size, int nargs,
             continue;
 
           nbytes +=
-              ROUND_UP_64(ind_sizes[m + b * ninds_staged] * dats[m2]->size);
+              ROUND_UP_64(ind_sizes[m + b * ninds_staged] * dats_size[m2]);
         }
         OP_plans[ip].nsharedCol[col] =
             MAX(OP_plans[ip].nsharedCol[col], nbytes);
@@ -949,7 +953,7 @@ op_plan *op_plan_core(char const *name, op_set set, int part_size, int nargs,
       if (args[m2].opt == 0)
         continue;
 
-      nbytes += ROUND_UP_64(ind_sizes[m + b * ninds_staged] * dats[m2]->size);
+      nbytes += ROUND_UP_64(ind_sizes[m + b * ninds_staged] * dats_size[m2]);
     }
     OP_plans[ip].nshared = MAX(OP_plans[ip].nshared, nbytes);
     total_shared += nbytes;
@@ -972,11 +976,11 @@ op_plan *op_plan_core(char const *name, op_set set, int part_size, int nargs,
             if (accs[m] == OP_READ ||
                 accs[m] == OP_WRITE) // if you only read or write it
               fac = 1.0f;
-            if (dats[m] != NULL) {
+            if (args[m].argtype == OP_ARG_DAT) {
               OP_plans[ip].transfer +=
-                  fac * nelems[b] * dats[m]->size; // cost of reading it all
-              OP_plans[ip].transfer2 += fac * nelems[b] * dats[m]->size;
-              transfer3 += fac * nelems[b] * dats[m]->size;
+                  fac * nelems[b] * dats_size[m]; // cost of reading it all
+              OP_plans[ip].transfer2 += fac * nelems[b] * dats_size[m];
+              transfer3 += fac * nelems[b] * dats_size[m];
             }
           } else // if it is indirectly addressed: cost of reading the pointer
                  // to it
@@ -1004,7 +1008,7 @@ op_plan *op_plan_core(char const *name, op_set set, int part_size, int nargs,
         }
         OP_plans[ip].transfer +=
             fac * ind_sizes[m + b * ninds] *
-            dats[m2]->size; // simply read all data one by one
+            dats_size[m2]; // simply read all data one by one
 
         /* work out how many cache lines are used by indirect addressing */
 
@@ -1018,7 +1022,7 @@ op_plan *op_plan_core(char const *name, op_set set, int part_size, int nargs,
              e++) // iterate through every indirectly accessed data element
         {
           i_map = ind_maps[m][e]; // the pointer to the data element
-          l_new = (i_map * dats[m2]->size) /
+          l_new = (i_map * dats_size[m2]) /
                   OP_cache_line_size; // which cache line it is on (full size,
                                       // dim*sizeof(type))
           if (l_new > l_old) // if it is on a further cache line (that is not
@@ -1026,7 +1030,7 @@ op_plan *op_plan_core(char const *name, op_set set, int part_size, int nargs,
             OP_plans[ip].transfer2 +=
                 fac * OP_cache_line_size; // load the cache line
           l_old = l_new;
-          l_new = ((i_map + 1) * dats[m2]->size - 1) /
+          l_new = ((i_map + 1) * dats_size[m2] - 1) /
                   OP_cache_line_size; // the last byte of the data
           OP_plans[ip].transfer2 += fac * (l_new - l_old) *
                                     OP_cache_line_size; // again, if not loaded,
@@ -1039,19 +1043,19 @@ op_plan *op_plan_core(char const *name, op_set set, int part_size, int nargs,
 
         for (int e = e0; e < e1; e++) {
           i_map = ind_maps[m][e]; // pointer to the data element
-          l_new = (i_map * dats[m2]->size) /
-                  (dats[m2]->dim * OP_cache_line_size); // which cache line the
+          l_new = (i_map * dats_size[m2]) /
+                  (dats_dim[m2] * OP_cache_line_size); // which cache line the
                                                         // first dimension of
                                                         // the data is on
           if (l_new > l_old)
             transfer3 +=
-                fac * dats[m2]->dim *
+                fac * dats_dim[m2] *
                 OP_cache_line_size; // if not loaded yet, load all cache lines
           l_old = l_new;
           l_new =
-              ((i_map + 1) * dats[m2]->size - 1) /
-              (dats[m2]->dim * OP_cache_line_size); // primitve type's last byte
-          transfer3 += fac * (l_new - l_old) * dats[m2]->dim *
+              ((i_map + 1) * dats_size[m2] - 1) /
+              (dats_dim[m2] * OP_cache_line_size); // primitve type's last byte
+          transfer3 += fac * (l_new - l_old) * dats_dim[m2] *
                        OP_cache_line_size; // load it
           l_old = l_new;
         }

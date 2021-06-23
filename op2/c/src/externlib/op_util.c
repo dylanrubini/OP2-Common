@@ -460,12 +460,14 @@ void op_mempool_alloc(op_set set, int elemsize, const char *type, int device, ch
   if (elem->elemsize == elemsize && elem->used == 0) {
     *out = elem->data;
     *out_d = elem->data_d;
+    elem->used = 1;
   } else {
     //sanity check
     if (elem->next != NULL) {printf("Error, stopped in middle, but not suitable\n"); exit(-1);}
     elem->next = op_pool_new_elem(set, elemsize, device);
     *out = elem->next->data;
     *out_d = elem->next->data_d;
+    elem->next->used = 1;
   }
 }
 
@@ -484,6 +486,7 @@ void op_mempool_free(op_set set, const char *type, char* data) {
 }
 
 void op_mempool_deallocate() {
+  if (pool==NULL) return;
   for (int i = 0; i < OP_set_index; i++) {
     op_mempool_list *list = pool[i].list;
     while (list != NULL) {

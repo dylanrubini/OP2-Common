@@ -49,7 +49,8 @@ typedef struct {
   op_set set;
   int nargs, ninds, ninds_staged, part_size;
   op_map *maps;
-  op_dat *dats;
+  int *dats_size;
+  int *dats_dim;
   int *idxs;
   int *optflags;
   op_access *accs;

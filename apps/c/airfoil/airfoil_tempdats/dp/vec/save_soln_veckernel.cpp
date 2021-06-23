@@ -3,26 +3,32 @@
 //
 
 //user function
-inline void save_soln(const double *q, double *qold) {
-  for (int n = 0; n < 4; n++)
+inline void save_soln(const double *q, double *qold, double *res) {
+  for (int n = 0; n < 4; n++) {
     qold[n] = q[n];
+    res[n] = 0.0;
+  }
 }
 
 // host stub function
 void op_par_loop_save_soln(char const *name, op_set set,
   op_arg arg0,
-  op_arg arg1){
+  op_arg arg1,
+  op_arg arg2){
 
-  int nargs = 2;
-  op_arg args[2];
+  int nargs = 3;
+  op_arg args[3];
 
   args[0] = arg0;
   args[1] = arg1;
+  args[2] = arg2;
   //create aligned pointers for dats
   ALIGNED_double const double * __restrict__ ptr0 = (double *) arg0.data;
-  DECLARE_PTR_ALIGNED(ptr0, double_ALIGN);
+  DECLARE_PTR_ALIGNED(ptr0,double_ALIGN);
   ALIGNED_double       double * __restrict__ ptr1 = (double *) arg1.data;
-  DECLARE_PTR_ALIGNED(ptr1, double_ALIGN);
+  DECLARE_PTR_ALIGNED(ptr1,double_ALIGN);
+  ALIGNED_double       double * __restrict__ ptr2 = (double *) arg2.data;
+  DECLARE_PTR_ALIGNED(ptr2,double_ALIGN);
 
   // initialise timers
   double cpu_t1, cpu_t2, wall_t1, wall_t2;
@@ -45,7 +51,8 @@ void op_par_loop_save_soln(char const *name, op_set set,
       for ( int i=0; i<SIMD_VEC; i++ ){
         save_soln(
           &(ptr0)[4 * (n+i)],
-          &(ptr1)[4 * (n+i)]);
+          &(ptr1)[4 * (n+i)],
+          &(ptr2)[4 * (n+i)]);
       }
     }
     //remainder
@@ -55,7 +62,8 @@ void op_par_loop_save_soln(char const *name, op_set set,
     #endif
       save_soln(
         &(ptr0)[4*n],
-        &(ptr1)[4*n]);
+        &(ptr1)[4*n],
+        &(ptr2)[4*n]);
     }
   }
 
@@ -69,4 +77,5 @@ void op_par_loop_save_soln(char const *name, op_set set,
   OP_kernels[0].time     += wall_t2 - wall_t1;
   OP_kernels[0].transfer += (float)set->size * arg0.size;
   OP_kernels[0].transfer += (float)set->size * arg1.size * 2.0f;
+  OP_kernels[0].transfer += (float)set->size * arg2.size * 2.0f;
 }
