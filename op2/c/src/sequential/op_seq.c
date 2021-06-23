@@ -31,6 +31,7 @@
  */
 
 #include <op_lib_c.h>
+#include <op_util.h>
 
 /*
  * This file implements thw wrappers of core library routines for
@@ -68,19 +69,21 @@ op_map op_decl_map(op_set from, op_set to, int dim, int *imap,
 
 op_dat op_decl_dat_char(op_set set, int dim, char const *type, int size,
                         char *data, char const *name) {
-  op_dat dat = op_decl_dat_core(set, dim, type, size, data, name);
+  op_dat dat = op_decl_dat_core(set, dim, type, size, data, name,0);
   return dat;
 }
 
-int op_free_dat_temp_char(op_dat dat) { return op_free_dat_temp_core(dat); }
+int op_free_dat_temp_char(op_dat dat) { 
+  op_mempool_free(dat->set, dat->type, dat->data);
+  dat->data = NULL;
+  return op_free_dat_temp_core(dat);
+}
 
 op_dat op_decl_dat_temp_char(op_set set, int dim, char const *type, int size,
                              char const *name) {
   char *data = NULL;
   op_dat dat = op_decl_dat_temp_core(set, dim, type, size, data, name);
-
-  for (size_t i = 0; i < set->size * dim * size; i++)
-    dat->data[i] = 0;
+  op_mempool_alloc(set, dim*size*(size_t)set->size, type, 0, &dat->data, &dat->data_d);
   dat->user_managed = 0;
   return dat;
 }
@@ -223,3 +226,7 @@ void op_print_dat_to_txtfile(op_dat dat, const char *file_name) {
 void op_upload_dat(op_dat dat) {}
 
 void op_download_dat(op_dat dat) {}
+
+char *op_device_malloc(size_t size) {return NULL;}
+
+void op_device_free(char *data) {}

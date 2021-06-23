@@ -155,7 +155,7 @@ op_dat op_decl_dat_char(op_set set, int dim, char const *type, int size,
 
   memcpy(d, data, set->size * dim * size * sizeof(char));
   op_dat out_dat = op_decl_dat_core(set, dim, type, size, d, name);*/
-  op_dat out_dat = op_decl_dat_core(set, dim, type, size, data, name);
+  op_dat out_dat = op_decl_dat_core(set, dim, type, size, data, name,0);
 
   op_dat_entry *item;
   op_dat_entry *tmp_item;
@@ -180,21 +180,18 @@ op_dat op_decl_dat_temp_char(op_set set, int dim, char const *type, int size,
   int set_size = set->size + OP_import_exec_list[set->index]->size +
                  OP_import_nonexec_list[set->index]->size;
 
+  //reserve extra space for halo buffers
+  size_t extra_size = dat->size * (OP_export_exec_list[set->index]->size +
+                              OP_export_nonexec_list[set->index]->size);
+  if (strstr(dat->type, ":soa") != NULL || (OP_auto_soa && dat->dim > 1))
+    extra_size *=2;
   // initialize data bits to 0
-  for (size_t i = 0; i < set_size * dim * size; i++)
-    dat->data[i] = 0;
+  op_mempool_alloc(set, dim*size*(size_t)(set_size)+extra_size, type, 1, &dat->data, &dat->data_d);
   dat->user_managed = 0;
+  dat->buffer_d = dat->data_d + dim*size*(size_t)(set_size);
+  if (strstr(dat->type, ":soa") != NULL || (OP_auto_soa && dat->dim > 1))
+    dat->buffer_d_r = dat->data_d + dim*size*(size_t)(set_size) + extra_size/2;
 
-  // transpose
-  if (strstr(dat->type, ":soa") != NULL || (OP_auto_soa && dat->dim > 1)) {
-    cutilSafeCall(
-        cudaMalloc((void **)&(dat->buffer_d_r),
-                   dat->size * (OP_import_exec_list[set->index]->size +
-                                OP_import_nonexec_list[set->index]->size)));
-  }
-
-  op_cpHostToDevice((void **)&(dat->data_d), (void **)&(dat->data),
-                    dat->size * set_size);
 
   // need to allocate mpi_buffers for this new temp_dat
   op_mpi_buffer mpi_buf = (op_mpi_buffer)xmalloc(sizeof(op_mpi_buffer_core));
@@ -220,12 +217,6 @@ op_dat op_decl_dat_temp_char(op_set set, int dim, char const *type, int size,
 
   dat->mpi_buffer = mpi_buf;
 
-  // need to allocate device buffers for mpi comms for this new temp_dat
-  cutilSafeCall(
-      cudaMalloc((void **)&(dat->buffer_d),
-                 dat->size * (OP_export_exec_list[set->index]->size +
-                              OP_export_nonexec_list[set->index]->size)));
-
   return dat;
 }
 
@@ -237,15 +228,12 @@ int op_free_dat_temp_char(op_dat dat) {
   free(((op_mpi_buffer)(dat->mpi_buffer))->r_req);
   free(dat->mpi_buffer);
 
-  // need to free device buffers used in mpi comms
-  cutilSafeCall(cudaFree(dat->buffer_d));
-
-  if (strstr(dat->type, ":soa") != NULL || (OP_auto_soa && dat->dim > 1)) {
-    cutilSafeCall(cudaFree(dat->buffer_d_r));
-  }
-
-  // free data on device
-  cutilSafeCall(cudaFree(dat->data_d));
+  op_mempool_free(dat->set, dat->type, dat->data);
+  dat->data = NULL;
+  dat->data_d = NULL;
+  dat->buffer_d = NULL;
+  dat->buffer_d_r = NULL;
+  
   return op_free_dat_temp_core(dat);
 }
 

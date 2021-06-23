@@ -81,6 +81,12 @@ int file_exist(char const *filename);
 
 bool op_type_equivalence(const char *a, const char *b);
 
+void op_mempool_alloc(op_set set, int elemsize, const char *type, int device, char **out, char **out_d);
+
+void op_mempool_free(op_set set, const char *type, char* data);
+
+void op_mempool_deallocate();
+
 #ifdef __cplusplus
 }
 #endif

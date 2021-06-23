@@ -36,6 +36,7 @@
  */
 
 #include "op_lib_core.h"
+#include "op_util.h"
 #include <malloc.h>
 #include <string.h>
 #include <sys/time.h>
@@ -363,7 +364,7 @@ op_map op_decl_map_core(op_set from, op_set to, int dim, int *imap,
 }
 
 op_dat op_decl_dat_core(op_set set, int dim, char const *type, int size,
-                        char *data, char const *name) {
+                        char *data, char const *name, int noalloc) {
   if (set == NULL) {
     printf("op_decl_dat error -- invalid set for data: %s\n", name);
     exit(-1);
@@ -378,12 +379,12 @@ op_dat op_decl_dat_core(op_set set, int dim, char const *type, int size,
   dat->index = OP_dat_index;
   dat->set = set;
   dat->dim = dim;
-  // dat->data = data;
-  // printf("DATASET %s, ptr %p\n", name, data);
-  char *new_data = (char *)op_malloc(dim * size * (set->size+set->exec_size+set->nonexec_size) * sizeof(char));
-  if (data != NULL)
-    memcpy(new_data, data, dim * size * set->size * sizeof(char));
-  dat->data = new_data;
+  if (!noalloc) {
+    char *new_data = (char *)op_malloc(dim * size * (set->size+set->exec_size+set->nonexec_size) * sizeof(char));
+    if (data != NULL)
+      memcpy(new_data, data, dim * size * set->size * sizeof(char));
+    dat->data = new_data;
+  } else dat->data = NULL;
   dat->data_d = NULL;
   dat->name = copy_str(name);
   dat->type = copy_str(type);
@@ -440,7 +441,7 @@ op_dat op_decl_dat_temp_core(op_set set, int dim, char const *type, int size,
     exit(2);
   }
   // if not found ...
-  return op_decl_dat_core(set, dim, type, size, data, name);
+  return op_decl_dat_core(set, dim, type, size, data, name, 1);
 }
 
 int op_free_dat_temp_core(op_dat dat) {
@@ -478,6 +479,9 @@ void op_decl_const_core(int dim, char const *type, int typeSize, char *data,
 }
 
 void op_exit_core() {
+
+  op_mempool_deallocate(); //TODO: temp dats still not freed will cause double free
+
   // free storage and pointers for sets, maps and data
 
   for (int i = 0; i < OP_set_index; i++) {

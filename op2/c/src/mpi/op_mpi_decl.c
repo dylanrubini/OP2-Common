@@ -103,7 +103,7 @@ op_dat op_decl_dat_char(op_set set, int dim, char const *type, int size,
   }
   memcpy(d, data, sizeof(char) * set->size * dim * size);
   op_dat out_dat = op_decl_dat_core(set, dim, type, size, d, name);*/
-  op_dat out_dat = op_decl_dat_core(set, dim, type, size, data, name);
+  op_dat out_dat = op_decl_dat_core(set, dim, type, size, data, name,0);
 
   op_dat_entry *item;
   op_dat_entry *tmp_item;
@@ -131,10 +131,7 @@ op_dat op_decl_dat_temp_char(op_set set, int dim, char const *type, int size,
   int halo_size = OP_import_exec_list[set->index]->size +
                   OP_import_nonexec_list[set->index]->size;
 
-  // initialize data bits to 0
-  //dat->data = (char *)calloc((set->size + halo_size) * dim * size, 1);
-  for (size_t i = 0; i < (set->size + halo_size) * dim * size; i++)
-    dat->data[i] = 0;
+  op_mempool_alloc(set, dim*size*(size_t)(set->size+halo_size), type, 0, &dat->data, &dat->data_d);
   dat->user_managed = 0;
 
   // need to allocate mpi_buffers for this new temp_dat
@@ -165,6 +162,8 @@ op_dat op_decl_dat_temp_char(op_set set, int dim, char const *type, int size,
 }
 
 int op_free_dat_temp_char(op_dat dat) {
+  op_mempool_free(dat->set, dat->type, dat->data);
+  dat->data = NULL;
   // need to free mpi_buffers used in this op_dat
   free(((op_mpi_buffer)(dat->mpi_buffer))->buf_exec);
   free(((op_mpi_buffer)(dat->mpi_buffer))->buf_nonexec);

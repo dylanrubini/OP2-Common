@@ -504,7 +504,7 @@ op_dat op_decl_dat_hdf5(op_set set, int dim, char const *type, char const *file,
 
   free((char*)dset_props.type_str);
 
-  op_dat new_dat = op_decl_dat_core(set, dim, type, type_size, data, name);
+  op_dat new_dat = op_decl_dat_core(set, dim, type, type_size, data, name,0);
   new_dat->user_managed = 0;
   return new_dat;
 }

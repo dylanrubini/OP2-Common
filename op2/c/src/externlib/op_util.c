@@ -48,7 +48,15 @@
 #include <unistd.h>
 
 #include <op_lib_core.h>
+#include <op_lib_c.h>
 #include <op_util.h>
+
+static char *copy_str(char const *src) {
+  const size_t len = strlen(src) + 1;
+  char *dest = (char *)op_calloc(len, sizeof(char));
+  return strncpy(dest, src, len);
+}
+
 
 /*******************************************************************************
 * compute local size from global size
@@ -390,6 +398,113 @@ bool op_type_equivalence(const char *a, const char *b) {
   }
   return false;
 }
+typedef struct _op_mempool_elem {
+  bool used;
+  int elemsize;
+  char *data;
+  char *data_d;
+  struct _op_mempool_elem *next;
+} op_mempool_elem;
+
+typedef struct _op_mempool_list{
+  char *type;
+  op_mempool_elem *elems;
+  struct _op_mempool_list *next;
+} op_mempool_list;
+
+typedef struct {
+  op_mempool_list *list;
+} op_mempool;
+
+int pool_size = 0;
+op_mempool *pool = NULL;
+
+op_mempool_elem *op_pool_new_elem(op_set set, size_t elemsize, int device) {
+  op_mempool_elem *elem = (op_mempool_elem *)op_calloc(sizeof(op_mempool_elem),1);
+  elem->elemsize = elemsize;
+  elem->data = (char*)op_malloc((size_t)elemsize);
+  if (device) elem->data_d = op_device_malloc((size_t)elemsize);
+  return elem;
+}
+
+void op_mempool_alloc(op_set set, int elemsize, const char *type, int device, char **out, char **out_d) {
+  if (pool_size == 0) {
+    pool = (op_mempool *)op_calloc(OP_set_index, sizeof(op_mempool));
+    pool_size = OP_set_index;
+  } else if (pool_size < OP_set_index) {
+    pool = (op_mempool *)op_realloc(pool, OP_set_index * sizeof(op_mempool));
+    for (int i = pool_size; i < OP_set_index; i++) pool[i].list = NULL;
+    pool_size = OP_set_index;
+  }
+  //Find set-type combination
+  op_mempool_list *list = pool[set->index].list;
+  while (list != NULL && strcmp(list->type, type) != 0) list = list->next;
+
+  //If none found, create new op_mempool_list, chain it to the end
+  if (list == NULL) {
+    op_mempool_list *newlist = (op_mempool_list *)op_calloc(sizeof(op_mempool_list),1);
+    newlist->type = copy_str(type);
+    newlist->elems = op_pool_new_elem(set, elemsize, device);
+    if (pool[set->index].list == NULL) pool[set->index].list = newlist;
+    else {
+      op_mempool_list *list2 = pool[set->index].list;
+      while (list2->next != NULL) list2 = list2->next;
+      list2->next = newlist;
+    }
+    list = newlist;
+  }
+
+  //Find elem in list with right elemsize that is unused
+  op_mempool_elem *elem = list->elems;
+  while ((elem->elemsize != elemsize || elem->used == 1) && elem->next != NULL) elem = elem->next;
+  if (elem->elemsize == elemsize && elem->used == 0) {
+    *out = elem->data;
+    *out_d = elem->data_d;
+  } else {
+    //sanity check
+    if (elem->next != NULL) {printf("Error, stopped in middle, but not suitable\n"); exit(-1);}
+    elem->next = op_pool_new_elem(set, elemsize, device);
+    *out = elem->next->data;
+    *out_d = elem->next->data_d;
+  }
+}
+
+void op_mempool_free(op_set set, const char *type, char* data) {
+  //Find set-type combination
+  op_mempool_list *list = pool[set->index].list;
+  while (list != NULL && strcmp(list->type, type) != 0) list = list->next;
+  //Sanity check:
+  if (list == NULL) {printf("Error: free couldn't find list\n");exit(-1);}
+  //Find elem in list
+  op_mempool_elem *elem = list->elems;
+  while (elem->data != data && elem->next != NULL) elem = elem->next;
+  //Sanity check:
+  if (elem == NULL) {printf("Error: free couldn't find elem in list\n");exit(-1);}
+  elem->used = 0;
+}
+
+void op_mempool_deallocate() {
+  for (int i = 0; i < OP_set_index; i++) {
+    op_mempool_list *list = pool[i].list;
+    while (list != NULL) {
+      op_mempool_elem *elem = list->elems;
+      while (elem != NULL) {
+        op_free(elem->data);
+        if (elem->data_d != NULL) op_device_free(elem->data_d);
+        op_mempool_elem *elemnext =  elem->next;
+        op_free(elem);
+        elem = elemnext;
+      }
+      op_mempool_list *listnext = list->next;
+      op_free(list);
+      list = listnext;
+    }
+  }
+  op_free(pool);
+  pool = NULL;
+  pool_size = 0;
+}
+
 #ifdef __cplusplus
 }
 #endif

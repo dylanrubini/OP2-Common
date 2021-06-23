@@ -387,6 +387,16 @@ void op_download_dat(op_dat dat) {
   }
 }
 
+char *op_device_malloc(size_t size) {
+  char *data;
+  cutilSafeCall(cudaMalloc(&data, size));
+  return data;
+}
+
+void op_device_free(char *data) {
+  cutilSafeCall(cudaFree(data));
+}
+
 int op_mpi_halo_exchanges(op_set set, int nargs, op_arg *args) {
   for (int n = 0; n < nargs; n++)
     if (args[n].opt && args[n].argtype == OP_ARG_DAT &&

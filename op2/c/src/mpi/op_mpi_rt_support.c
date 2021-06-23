@@ -54,6 +54,10 @@ void op_upload_dat(op_dat dat) {}
 
 void op_download_dat(op_dat dat) {}
 
+char *op_device_malloc(size_t size) {return NULL;}
+
+void op_device_free(char *data) {}
+
 /*******************************************************************************
  * Main MPI Halo Exchange Function
  *******************************************************************************/

@@ -210,6 +210,16 @@ void op_download_dat(op_dat dat) {
   }
 }
 
+char *op_device_malloc(size_t size) {
+  char *data;
+  cutilSafeCall(cudaMalloc(&data, size));
+  return data;
+}
+
+void op_device_free(char *data) {
+  cutilSafeCall(cudaFree(data));
+}
+
 void op_exchange_halo_cuda(op_arg *arg, int exec_flag) {
   op_dat dat = arg->dat;
 

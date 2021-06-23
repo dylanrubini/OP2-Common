@@ -260,6 +260,16 @@ void op_download_dat(op_dat dat) {
   }
 }
 
+char *op_device_malloc(size_t size) {
+  char *data = (char*)op_malloc(size);
+  #pragma omp target enter data map(to: data[:size])
+  return data;
+}
+void op_device_free(char *data) {
+  #pragma omp target exit data map(from: data)
+  op_free(data);
+}
+
 int op_mpi_halo_exchanges(op_set set, int nargs, op_arg *args) { //TODO itt a download + dirty allitas ekv egy getdata hivassal
   for (int n = 0; n < nargs; n++)
     if (args[n].opt && args[n].argtype == OP_ARG_DAT &&

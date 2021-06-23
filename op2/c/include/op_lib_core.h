@@ -233,7 +233,7 @@ op_set op_decl_set_core(int, char const *);
 
 op_map op_decl_map_core(op_set, op_set, int, int *, char const *);
 
-op_dat op_decl_dat_core(op_set, int, char const *, int, char *, char const *);
+op_dat op_decl_dat_core(op_set, int, char const *, int, char *, char const *, int);
 
 op_dat op_decl_dat_temp_core(op_set, int, char const *, int, char *,
                              char const *);
@@ -292,6 +292,10 @@ void check_map(char const *name, op_set from, op_set to, int dim, int *map);
 void op_upload_dat(op_dat dat);
 
 void op_download_dat(op_dat dat);
+
+char *op_device_malloc(size_t size);
+
+void op_device_free(char *data);
 
 /*******************************************************************************
 * Core MPI lib function prototypes

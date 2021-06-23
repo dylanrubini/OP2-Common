@@ -6,6 +6,7 @@
 
 #include <op_lib_c.h>
 #include <op_rt_support.h>
+#include <op_util.h>
 
 void cutilDeviceInit(int argc, char **argv);
 
@@ -45,7 +46,7 @@ void op_mpi_init_soa(int argc, char **argv, int diags, int global, int local,
 
 op_dat op_decl_dat_char(op_set set, int dim, char const *type, int size,
                         char *data, char const *name) {
-  op_dat dat = op_decl_dat_core(set, dim, type, size, data, name);
+  op_dat dat = op_decl_dat_core(set, dim, type, size, data, name, 0);
 
   // transpose data
   if (strstr(type, ":soa") != NULL || (OP_auto_soa && dim > 1)) {
@@ -76,36 +77,15 @@ op_dat op_decl_dat_temp_char(op_set set, int dim, char const *type, int size,
   char *data = NULL;
   op_dat dat = op_decl_dat_temp_core(set, dim, type, size, data, name);
 
-  for (size_t i = 0; i < set->size * dim * size; i++)
-    dat->data[i] = 0;
+  op_mempool_alloc(set, dim*size*(size_t)set->size, type, 1, &dat->data, &dat->data_d);
   dat->user_managed = 0;
-
-  // transpose data
-  if (strstr(type, ":soa") != NULL || (OP_auto_soa && dim > 1)) {
-    char *temp_data = (char *)malloc(dat->size * set->size * sizeof(char));
-    int element_size = dat->size / dat->dim;
-    for (int i = 0; i < dat->dim; i++) {
-      for (int j = 0; j < set->size; j++) {
-        for (int c = 0; c < element_size; c++) {
-          temp_data[element_size * i * set->size + element_size * j + c] =
-              data[dat->size * j + element_size * i + c];
-        }
-      }
-    }
-    op_cpHostToDevice((void **)&(dat->data_d), (void **)&(temp_data),
-                      dat->size * set->size);
-    free(temp_data);
-  } else {
-    op_cpHostToDevice((void **)&(dat->data_d), (void **)&(dat->data),
-                      dat->size * set->size);
-  }
 
   return dat;
 }
 
 int op_free_dat_temp_char(op_dat dat) {
-  // free data on device
- #pragma omp target exit data map(delete:dat->data_d[:dat->size * dat->set->size])
+  op_mempool_free(dat->set, dat->type, dat->data);
+  dat->data = NULL;
   return op_free_dat_temp_core(dat);
 }
 
