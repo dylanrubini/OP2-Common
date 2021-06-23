@@ -26,7 +26,7 @@ SUBROUTINE op_wrap_adt_calc( &
   implicit none
   real(8) opDat1Local(2,*)
   real(8) opDat5Local(4,*)
-  real(8) opDat6Local(5,*)
+  real(8) opDat6Local(1,*)
   real(8) opDat7Local(1,*)
   INTEGER(kind=4) opDat1Map(*)
   INTEGER(kind=4) opDat1MapDim

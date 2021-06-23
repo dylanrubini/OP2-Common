@@ -17,7 +17,7 @@ USE CUDACONFIGURATIONPARAMS
 
 ! updatevariable declarations
 
-real(8), DIMENSION(:), DEVICE, ALLOCATABLE :: reductionArrayDevice5update
+real(8), DIMENSION(:), DEVICE, ALLOCATABLE :: reductionArrayDevice6update
 
 
 #define OP2_SOA(var,dim,stride) var((dim-1)*stride+1)
@@ -76,13 +76,15 @@ CONTAINS
   CALL syncthreads()
   END SUBROUTINE
 
-attributes (host) subroutine update(qold,q,res,adt,rms)
+attributes (host) subroutine update(temp_dat, qold,q,res,adt,rms)
   IMPLICIT NONE
   REAL(kind=8), DIMENSION(4), INTENT(IN) :: qold
   REAL(kind=8), DIMENSION(4) :: q
   REAL(kind=8), DIMENSION(4) :: res
   REAL(kind=8), INTENT(IN) :: adt
   REAL(kind=8), DIMENSION(2) :: rms
+  REAL(kind=8), DIMENSION(1) :: temp_dat
+  
   REAL(kind=8) :: del,adti
   INTEGER(kind=4) :: i
   adti = 1.0 / adt
@@ -93,17 +95,21 @@ attributes (host) subroutine update(qold,q,res,adt,rms)
     res(i) = 0.0
     rms(2) = rms(2) + del * del
   END DO
+
+  temp_dat = temp_dat + 5.d0
 END SUBROUTINE
 
 
 
-attributes (device) subroutine update_gpu(qold,q,res,adt,rms)
+attributes (device) subroutine update_gpu(temp_dat, qold,q,res,adt,rms)
   IMPLICIT NONE
   REAL(kind=8), DIMENSION(4), INTENT(IN) :: qold
   REAL(kind=8), DIMENSION(4) :: q
   REAL(kind=8), DIMENSION(4) :: res
   REAL(kind=8), INTENT(IN) :: adt
   REAL(kind=8), DIMENSION(2) :: rms
+  REAL(kind=8), DIMENSION(1) :: temp_dat
+  
   REAL(kind=8) :: del,adti
   INTEGER(kind=4) :: i
   adti = 1.0 / adt
@@ -114,6 +120,8 @@ attributes (device) subroutine update_gpu(qold,q,res,adt,rms)
     res(i) = 0.0
     rms(2) = rms(2) + del * del
   END DO
+
+  temp_dat = temp_dat + 5.d0
 END SUBROUTINE
 
 
@@ -126,41 +134,44 @@ END SUBROUTINE
     & opDat2Deviceupdate, &
     & opDat3Deviceupdate, &
     & opDat4Deviceupdate, &
+    & opDat5Deviceupdate, &
     & setSize)
 
     IMPLICIT NONE
 
 ! local variables
-    real(8), DEVICE, INTENT(IN) :: opDat1Deviceupdate(*)
-    real(8), DEVICE :: opDat2Deviceupdate(*)
+    real(8), DEVICE :: opDat1Deviceupdate(*)
+    real(8), DEVICE, INTENT(IN) :: opDat2Deviceupdate(*)
     real(8), DEVICE :: opDat3Deviceupdate(*)
-    real(8), DEVICE, INTENT(IN) :: opDat4Deviceupdate(*)
+    real(8), DEVICE :: opDat4Deviceupdate(*)
+    real(8), DEVICE, INTENT(IN) :: opDat5Deviceupdate(*)
 
-    real(8), DIMENSION(0:2-1) :: opGblDat5Deviceupdate
+    real(8), DIMENSION(0:2-1) :: opGblDat6Deviceupdate
 
     INTEGER(kind=4), VALUE :: setSize
     INTEGER(kind=4) :: i1
     INTEGER(kind=4) :: i2
     REAL(kind=8), DIMENSION(0:*), SHARED :: redFloat8
 
-    opGblDat5Deviceupdate = 0
+    opGblDat6Deviceupdate = 0
 
     DO i1 = threadIdx%x - 1 + (blockIdx%x - 1) * blockDim%x, setSize - 1, blockDim%x * gridDim%x
 
 ! kernel call
 
       CALL update_gpu( &
-      & opDat1Deviceupdate(i1 * (4) + 1: i1 * (4) + 4), &
+      & opDat1Deviceupdate(i1 + 1), &
       & opDat2Deviceupdate(i1 * (4) + 1: i1 * (4) + 4), &
       & opDat3Deviceupdate(i1 * (4) + 1: i1 * (4) + 4), &
-      & opDat4Deviceupdate(i1 + 1), &
-      & opGblDat5Deviceupdate &
+      & opDat4Deviceupdate(i1 * (4) + 1: i1 * (4) + 4), &
+      & opDat5Deviceupdate(i1 + 1), &
+      & opGblDat6Deviceupdate &
       & )
     END DO
 
     do i1=0,2-1,8
     i2 = MIN(i1+8,2)
-      CALL ReductionFloat8Mdim(redFloat8, reductionArrayDevice5update((blockIdx%x - 1)*(2) + 1+i1:),opGblDat5Deviceupdate(i1:),0,i2-i1)
+      CALL ReductionFloat8Mdim(redFloat8, reductionArrayDevice6update((blockIdx%x - 1)*(2) + 1+i1:),opGblDat6Deviceupdate(i1:),0,i2-i1)
     end do
 
   END SUBROUTINE
@@ -170,7 +181,8 @@ END SUBROUTINE
     & opArg2, &
     & opArg3, &
     & opArg4, &
-    & opArg5 )
+    & opArg5, &
+    & opArg6 )
 
     IMPLICIT NONE
     character(kind=c_char,len=*), INTENT(IN) :: userSubroutine
@@ -181,6 +193,7 @@ END SUBROUTINE
     TYPE ( op_arg ) , INTENT(IN) :: opArg3
     TYPE ( op_arg ) , INTENT(IN) :: opArg4
     TYPE ( op_arg ) , INTENT(IN) :: opArg5
+    TYPE ( op_arg ) , INTENT(IN) :: opArg6
 
     IF (getHybridGPU().EQ.1) THEN
       CALL update_host_gpu( userSubroutine, set, &
@@ -188,7 +201,8 @@ END SUBROUTINE
       & opArg2, &
       & opArg3, &
       & opArg4, &
-      & opArg5 )
+      & opArg5, &
+      & opArg6 )
     END IF
   END SUBROUTINE
 
@@ -200,7 +214,8 @@ END SUBROUTINE
     & opArg2, &
     & opArg3, &
     & opArg4, &
-    & opArg5 )
+    & opArg5, &
+    & opArg6 )
 
     IMPLICIT NONE
     character(kind=c_char,len=*), INTENT(IN) :: userSubroutine
@@ -211,8 +226,9 @@ END SUBROUTINE
     TYPE ( op_arg ) , INTENT(IN) :: opArg3
     TYPE ( op_arg ) , INTENT(IN) :: opArg4
     TYPE ( op_arg ) , INTENT(IN) :: opArg5
+    TYPE ( op_arg ) , INTENT(IN) :: opArg6
 
-    TYPE ( op_arg ) , DIMENSION(5) :: opArgArray
+    TYPE ( op_arg ) , DIMENSION(6) :: opArgArray
     INTEGER(kind=4) :: numberOfOpDats
     INTEGER(kind=4) :: n_upper
     INTEGER(kind=4), DIMENSION(1:8) :: timeArrayStart
@@ -226,12 +242,14 @@ END SUBROUTINE
     real(8), DIMENSION(:), DEVICE, POINTER :: opDat2Deviceupdate
     real(8), DIMENSION(:), DEVICE, POINTER :: opDat3Deviceupdate
     real(8), DIMENSION(:), DEVICE, POINTER :: opDat4Deviceupdate
+    real(8), DIMENSION(:), DEVICE, POINTER :: opDat5Deviceupdate
 
     INTEGER(kind=4) :: opDat1Cardinality
     INTEGER(kind=4) :: opDat2Cardinality
     INTEGER(kind=4) :: opDat3Cardinality
     INTEGER(kind=4) :: opDat4Cardinality
     INTEGER(kind=4) :: opDat5Cardinality
+    INTEGER(kind=4) :: opDat6Cardinality
 
     INTEGER(kind=4) :: blocksPerGrid
     INTEGER(kind=4) :: threadsPerBlock
@@ -245,17 +263,18 @@ END SUBROUTINE
 
     INTEGER(kind=4), SAVE :: calledTimes=0
     INTEGER(kind=4) :: istat
-    real(8), DIMENSION(:), POINTER :: opDat5Host
-    real(8), DIMENSION(:), ALLOCATABLE :: reductionArrayHost5
-    INTEGER(kind=4) :: reductionCardinality5
+    real(8), DIMENSION(:), POINTER :: opDat6Host
+    real(8), DIMENSION(:), ALLOCATABLE :: reductionArrayHost6
+    INTEGER(kind=4) :: reductionCardinality6
 
-    numberOfOpDats = 5
+    numberOfOpDats = 6
 
     opArgArray(1) = opArg1
     opArgArray(2) = opArg2
     opArgArray(3) = opArg3
     opArgArray(4) = opArg4
     opArgArray(5) = opArg5
+    opArgArray(6) = opArg6
 
 #ifdef COMM_PERF
     returnSetKernelTiming = setKernelTime(4 , userSubroutine//C_NULL_CHAR, &
@@ -274,32 +293,35 @@ END SUBROUTINE
     opDat2Cardinality = opArg2%dim * getSetSizeFromOpArg(opArg2)
     opDat3Cardinality = opArg3%dim * getSetSizeFromOpArg(opArg3)
     opDat4Cardinality = opArg4%dim * getSetSizeFromOpArg(opArg4)
-    opDat5Cardinality = opArg5%dim
+    opDat5Cardinality = opArg5%dim * getSetSizeFromOpArg(opArg5)
+    opDat6Cardinality = opArg6%dim
 
 
     CALL c_f_pointer(opArg1%data_d,opDat1Deviceupdate,(/opDat1Cardinality/))
     CALL c_f_pointer(opArg2%data_d,opDat2Deviceupdate,(/opDat2Cardinality/))
     CALL c_f_pointer(opArg3%data_d,opDat3Deviceupdate,(/opDat3Cardinality/))
     CALL c_f_pointer(opArg4%data_d,opDat4Deviceupdate,(/opDat4Cardinality/))
-    CALL c_f_pointer(opArg5%data,opDat5Host,(/opDat5Cardinality/))
+    CALL c_f_pointer(opArg5%data_d,opDat5Deviceupdate,(/opDat5Cardinality/))
+    CALL c_f_pointer(opArg6%data,opDat6Host,(/opDat6Cardinality/))
 
-    reductionCardinality5 = blocksPerGrid * 1
-    allocate( reductionArrayHost5(reductionCardinality5* (2)) )
-    IF (.not. allocated(reductionArrayDevice5update)) THEN
-      allocate( reductionArrayDevice5update(reductionCardinality5* (2)) )
+    reductionCardinality6 = blocksPerGrid * 1
+    allocate( reductionArrayHost6(reductionCardinality6* (2)) )
+    IF (.not. allocated(reductionArrayDevice6update)) THEN
+      allocate( reductionArrayDevice6update(reductionCardinality6* (2)) )
     END IF
 
-    DO i10 = 0, reductionCardinality5 - 1, 1
-      reductionArrayHost5(i10 * (2) + 1 : i10 * (2) + (2)) = 0.0
+    DO i10 = 0, reductionCardinality6 - 1, 1
+      reductionArrayHost6(i10 * (2) + 1 : i10 * (2) + (2)) = 0.0
     END DO
 
-    reductionArrayDevice5update = reductionArrayHost5
+    reductionArrayDevice6update = reductionArrayHost6
 
     CALL op_cuda_update <<<blocksPerGrid,threadsPerBlock,dynamicSharedMemorySize>>>( &
     & opDat1Deviceupdate, &
     & opDat2Deviceupdate, &
     & opDat3Deviceupdate, &
     & opDat4Deviceupdate, &
+    & opDat5Deviceupdate, &
     set%setPtr%size)
 
     IF ((n_upper .EQ. 0) .OR. (n_upper .EQ. set%setPtr%core_size)) THEN
@@ -309,14 +331,14 @@ END SUBROUTINE
 
     CALL op_mpi_set_dirtybit_cuda(numberOfOpDats,opArgArray)
 
-    reductionArrayHost5 = reductionArrayDevice5update
+    reductionArrayHost6 = reductionArrayDevice6update
 
-    DO i10 = 0, reductionCardinality5 - 1, 1
-      opDat5Host(1:2) = opDat5Host(1:2) + reductionArrayHost5(i10 * (2) + 1 : i10 * (2) + (2))
+    DO i10 = 0, reductionCardinality6 - 1, 1
+      opDat6Host(1:2) = opDat6Host(1:2) + reductionArrayHost6(i10 * (2) + 1 : i10 * (2) + (2))
     END DO
 
-    deallocate( reductionArrayHost5 )
-    CALL op_mpi_reduce_double(opArg5,opArg5%data)
+    deallocate( reductionArrayHost6 )
+    CALL op_mpi_reduce_double(opArg6,opArg6%data)
 
     istat = cudaDeviceSynchronize()
     IF (istat.ne.0) THEN
@@ -326,11 +348,12 @@ END SUBROUTINE
     call op_timers_core(endTime)
 
     dataTransfer = 0.0
-    dataTransfer = dataTransfer + opArg1%size * getSetSizeFromOpArg(opArg1)
+    dataTransfer = dataTransfer + opArg1%size * getSetSizeFromOpArg(opArg1) * 2.d0
     dataTransfer = dataTransfer + opArg2%size * getSetSizeFromOpArg(opArg2)
-    dataTransfer = dataTransfer + opArg3%size * getSetSizeFromOpArg(opArg3) * 2.d0
-    dataTransfer = dataTransfer + opArg4%size * getSetSizeFromOpArg(opArg4)
-    dataTransfer = dataTransfer + opArg5%size * 2.d0
+    dataTransfer = dataTransfer + opArg3%size * getSetSizeFromOpArg(opArg3)
+    dataTransfer = dataTransfer + opArg4%size * getSetSizeFromOpArg(opArg4) * 2.d0
+    dataTransfer = dataTransfer + opArg5%size * getSetSizeFromOpArg(opArg5)
+    dataTransfer = dataTransfer + opArg6%size * 2.d0
     returnSetKernelTiming = setKernelTime(4 , userSubroutine//C_NULL_CHAR, &
     & endTime-startTime, dataTransfer, 0.00000_4, 1)
     calledTimes = calledTimes + 1

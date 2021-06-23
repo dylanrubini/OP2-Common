@@ -32,7 +32,7 @@ attributes (host) subroutine adt_calc(x1,x2,x3,x4,q,temp_dat, adt)
   REAL(kind=8), DIMENSION(2), INTENT(IN) :: x3
   REAL(kind=8), DIMENSION(2), INTENT(IN) :: x4
   REAL(kind=8), DIMENSION(4), INTENT(IN) :: q
-  REAL(kind=8), DIMENSION(5)  :: temp_dat
+  REAL(kind=8), DIMENSION(1)  :: temp_dat
   REAL(kind=8) :: adt
   REAL(kind=8) :: dx,dy,ri,u,v,c
 
@@ -67,7 +67,7 @@ attributes (device) subroutine adt_calc_gpu(x1,x2,x3,x4,q,temp_dat, adt)
   REAL(kind=8), DIMENSION(2), INTENT(IN) :: x3
   REAL(kind=8), DIMENSION(2), INTENT(IN) :: x4
   REAL(kind=8), DIMENSION(4), INTENT(IN) :: q
-  REAL(kind=8), DIMENSION(5)  :: temp_dat
+  REAL(kind=8), DIMENSION(1)  :: temp_dat
   REAL(kind=8) :: adt
   REAL(kind=8) :: dx,dy,ri,u,v,c
 
@@ -143,7 +143,7 @@ attributes (global) SUBROUTINE op_cuda_adt_calc( &
     & opDat1Deviceadt_calc(1 + map3idx * (2):     map3idx * (2) + 2), &
     & opDat1Deviceadt_calc(1 + map4idx * (2):     map4idx * (2) + 2), &
     & opDat5Deviceadt_calc(i3 * (4) +1:i3 * (4) + (4)), &
-    & opDat6Deviceadt_calc(i3 * (5) +1:i3 * (5) + (5)), &
+    & opDat6Deviceadt_calc(i3 * (1) +1), &
     & opDat7Deviceadt_calc(i3 * (1) +1) &
     & )
 

@@ -8,6 +8,7 @@ unset LD_LIBRARY_PATH
 
 #OP2 specifics
 # OP2_INSTALL_PATH_MINUS1="/home/orie3565/Documents/OP2-Common/"
+export OP2_COMPILER=pgi
 OP2_INSTALL_PATH_MINUS1="/datapart1/Forked-OP2/OP2-Common/"
 OP2_DIR="op2/"
 export OP2_INSTALL_PATH=$OP2_INSTALL_PATH_MINUS1$OP2_DIR

@@ -21,13 +21,15 @@ SUBROUTINE op_wrap_update( &
   & opDat3Local, &
   & opDat4Local, &
   & opDat5Local, &
+  & opDat6Local, &
   & bottom,top)
   implicit none
-  real(8) opDat1Local(4,*)
+  real(8) opDat1Local(1,*)
   real(8) opDat2Local(4,*)
   real(8) opDat3Local(4,*)
-  real(8) opDat4Local(1,*)
-  real(8) opDat5Local(2)
+  real(8) opDat4Local(4,*)
+  real(8) opDat5Local(1,*)
+  real(8) opDat6Local(2)
   INTEGER(kind=4) bottom,top,i1
 
   DO i1 = bottom, top-1, 1
@@ -37,7 +39,8 @@ SUBROUTINE op_wrap_update( &
     & opDat2Local(1,i1+1), &
     & opDat3Local(1,i1+1), &
     & opDat4Local(1,i1+1), &
-    & opDat5Local(1) &
+    & opDat5Local(1,i1+1), &
+    & opDat6Local(1) &
     & )
   END DO
 END SUBROUTINE
@@ -46,7 +49,8 @@ SUBROUTINE update_host( userSubroutine, set, &
   & opArg2, &
   & opArg3, &
   & opArg4, &
-  & opArg5 )
+  & opArg5, &
+  & opArg6 )
 
   IMPLICIT NONE
   character(kind=c_char,len=*), INTENT(IN) :: userSubroutine
@@ -57,8 +61,9 @@ SUBROUTINE update_host( userSubroutine, set, &
   type ( op_arg ) , INTENT(IN) :: opArg3
   type ( op_arg ) , INTENT(IN) :: opArg4
   type ( op_arg ) , INTENT(IN) :: opArg5
+  type ( op_arg ) , INTENT(IN) :: opArg6
 
-  type ( op_arg ) , DIMENSION(5) :: opArgArray
+  type ( op_arg ) , DIMENSION(6) :: opArgArray
   INTEGER(kind=4) :: numberOfOpDats
   INTEGER(kind=4), DIMENSION(1:8) :: timeArrayStart
   INTEGER(kind=4), DIMENSION(1:8) :: timeArrayEnd
@@ -81,17 +86,21 @@ SUBROUTINE update_host( userSubroutine, set, &
   INTEGER(kind=4) :: opDat4Cardinality
 
   real(8), POINTER, DIMENSION(:) :: opDat5Local
+  INTEGER(kind=4) :: opDat5Cardinality
+
+  real(8), POINTER, DIMENSION(:) :: opDat6Local
 
   INTEGER(kind=4) :: i1
   REAL(kind=4) :: dataTransfer
 
-  numberOfOpDats = 5
+  numberOfOpDats = 6
 
   opArgArray(1) = opArg1
   opArgArray(2) = opArg2
   opArgArray(3) = opArg3
   opArgArray(4) = opArg4
   opArgArray(5) = opArg5
+  opArgArray(6) = opArg6
 
 #ifdef COMM_PERF
   returnSetKernelTiming = setKernelTime(4 , userSubroutine//C_NULL_CHAR, &
@@ -107,11 +116,13 @@ SUBROUTINE update_host( userSubroutine, set, &
   opDat2Cardinality = opArg2%dim * getSetSizeFromOpArg(opArg2)
   opDat3Cardinality = opArg3%dim * getSetSizeFromOpArg(opArg3)
   opDat4Cardinality = opArg4%dim * getSetSizeFromOpArg(opArg4)
+  opDat5Cardinality = opArg5%dim * getSetSizeFromOpArg(opArg5)
   CALL c_f_pointer(opArg1%data,opDat1Local,(/opDat1Cardinality/))
   CALL c_f_pointer(opArg2%data,opDat2Local,(/opDat2Cardinality/))
   CALL c_f_pointer(opArg3%data,opDat3Local,(/opDat3Cardinality/))
   CALL c_f_pointer(opArg4%data,opDat4Local,(/opDat4Cardinality/))
-  CALL c_f_pointer(opArg5%data,opDat5Local, (/opArg5%dim/))
+  CALL c_f_pointer(opArg5%data,opDat5Local,(/opDat5Cardinality/))
+  CALL c_f_pointer(opArg6%data,opDat6Local, (/opArg6%dim/))
 
 
   CALL op_wrap_update( &
@@ -120,6 +131,7 @@ SUBROUTINE update_host( userSubroutine, set, &
   & opDat3Local, &
   & opDat4Local, &
   & opDat5Local, &
+  & opDat6Local, &
   & 0, opSetCore%core_size)
   CALL op_mpi_wait_all(numberOfOpDats,opArgArray)
   CALL op_wrap_update( &
@@ -128,6 +140,7 @@ SUBROUTINE update_host( userSubroutine, set, &
   & opDat3Local, &
   & opDat4Local, &
   & opDat5Local, &
+  & opDat6Local, &
   & opSetCore%core_size, n_upper)
   IF ((n_upper .EQ. 0) .OR. (n_upper .EQ. opSetCore%core_size)) THEN
     CALL op_mpi_wait_all(numberOfOpDats,opArgArray)
@@ -136,17 +149,18 @@ SUBROUTINE update_host( userSubroutine, set, &
 
   CALL op_mpi_set_dirtybit(numberOfOpDats,opArgArray)
 
-  CALL op_mpi_reduce_double(opArg5,opArg5%data)
+  CALL op_mpi_reduce_double(opArg6,opArg6%data)
 
 #ifdef COMM_PERF
   call op_timers_core(endTime)
 
   dataTransfer = 0.0
-  dataTransfer = dataTransfer + opArg1%size * opSetCore%size
+  dataTransfer = dataTransfer + opArg1%size * opSetCore%size * 2.d0
   dataTransfer = dataTransfer + opArg2%size * opSetCore%size
-  dataTransfer = dataTransfer + opArg3%size * opSetCore%size * 2.d0
-  dataTransfer = dataTransfer + opArg4%size * opSetCore%size
-  dataTransfer = dataTransfer + opArg5%size * 2.d0
+  dataTransfer = dataTransfer + opArg3%size * opSetCore%size
+  dataTransfer = dataTransfer + opArg4%size * opSetCore%size * 2.d0
+  dataTransfer = dataTransfer + opArg5%size * opSetCore%size
+  dataTransfer = dataTransfer + opArg6%size * 2.d0
   returnSetKernelTiming = setKernelTime(4 , userSubroutine//C_NULL_CHAR, &
   & endTime-startTime, dataTransfer, 0.00000_4, 1)
 #endif

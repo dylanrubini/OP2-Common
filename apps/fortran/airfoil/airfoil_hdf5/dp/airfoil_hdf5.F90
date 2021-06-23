@@ -135,7 +135,7 @@ program AIRFOIL
      start_time_temp_alloc(niter) = 0.D0
      end_time_temp_alloc(niter)   = 0.D0
      call cpu_time(start_time_temp_alloc(niter))
-     call op_decl_dat_temp(cells, 5, 'real(8)', rms, temp_dat, 'temp_dat' )      
+     call op_decl_dat_temp(cells, 1, 'real(8)', rms, temp_dat, 'temp_dat' )      
      call cpu_time(end_time_temp_alloc(niter))   
      ! write(*,*) 'allocate time = ', start_time_temp - end_time_temp   
 
@@ -150,7 +150,7 @@ program AIRFOIL
                          & op_arg_dat (p_x,    3, pcell, 2,"real(8)", OP_READ), &
                          & op_arg_dat (p_x,    4, pcell, 2,"real(8)", OP_READ), &
                          & op_arg_dat (p_q,   -1, OP_ID, 4,"real(8)", OP_READ), &
-                         & op_arg_dat (temp_dat,   -1, OP_ID, 5,"real(8)", OP_INC), &                         
+                         & op_arg_dat (temp_dat,   -1, OP_ID, 1,"real(8)", OP_INC), &                         
                          & op_arg_dat (p_adt, -1, OP_ID, 1,"real(8)", OP_WRITE))
 
       ! calculate flux residual
@@ -176,7 +176,8 @@ program AIRFOIL
 
       rms(1:2) = 0.0
 
-      call op_par_loop_5 ( update, cells, &
+      call op_par_loop_6 ( update, cells, &
+                         & op_arg_dat (temp_dat,   -1, OP_ID, 1,"real(8)", OP_INC), &         
                          & op_arg_dat (p_qold, -1, OP_ID, 4,"real(8)",  OP_READ),  &
                          & op_arg_dat (p_q,    -1, OP_ID, 4,"real(8)",  OP_WRITE), &
                          & op_arg_dat (p_res,  -1, OP_ID, 4,"real(8)",  OP_RW),    &
