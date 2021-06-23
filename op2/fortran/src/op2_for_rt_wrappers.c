@@ -99,7 +99,9 @@ op_plan * checkExistingPlan (char name[], op_set set,
       match = 1;
       for ( int m = 0; m < argsNumber; m++ )
       {
-        match = match && ( args[m].dat == OP_plans[ip].dats[m] )
+        // match = match && ( args[m].dat == OP_plans[ip].dats[m] )
+          match = match && ( args[m].dat->size == OP_plans[ip].dats_size[m]) &&
+                    (args[m].dat->dim == OP_plans[ip].dats_dim[m])
 //          && ( args[m].map->index == OP_plans[ip].maps[m]->index )
           && ( args[m].idx == OP_plans[ip].idxs[m] )
           && ( args[m].acc == OP_plans[ip].accs[m] );
