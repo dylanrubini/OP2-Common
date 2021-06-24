@@ -19,6 +19,7 @@ unset OP_AUTO_SOA
 #export OP_AUTO_SOA=1
 
 # load modules 
+module load CUDA/11.1.1-GCC-10.2.0
 module load GCCcore/9.3.0
 module load OpenMPI/4.0.3-GCC-9.3.0
 module load ParMETIS/4.0.3-gompi-2020a
@@ -46,6 +47,9 @@ export LD_LIBRARY_PATH=/apps/system/easybuild/software/ParMETIS/4.0.3-gompi-2020
 
 
 #NVIDIA CUDA
+export LD_LIBRARY_PATH=/apps/system/easybuild/software/CUDAcore/11.1.1/lib64:$LD_LIBRARY_PATH
+export CUDA_INSTALL_PATH=/apps/system/easybuild/software/CUDAcore/11.1.1
+export NV_ARCH=Kepler
 # export PATH=/usr/local/cuda/bin:$PATH
 # export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH
 # export CUDA_INSTALL_PATH=/usr/local/cuda
