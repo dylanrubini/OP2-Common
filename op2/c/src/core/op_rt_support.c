@@ -512,8 +512,10 @@ op_plan *op_plan_core(char const *name, op_set set, int part_size, int nargs,
     else
       OP_plans[ip].loc_maps[m] = NULL;
 
-    OP_plans[ip].dats_size[m] = args[m].dat->size;
-    OP_plans[ip].dats_dim[m] = args[m].dat->dim;
+    if (args[m].dat != NULL) {
+      OP_plans[ip].dats_size[m] = args[m].dat->size;
+      OP_plans[ip].dats_dim[m] = args[m].dat->dim;
+    }
     OP_plans[ip].idxs[m] = args[m].idx;
     OP_plans[ip].optflags[m] = args[m].opt;
     OP_plans[ip].maps[m] = args[m].map;
