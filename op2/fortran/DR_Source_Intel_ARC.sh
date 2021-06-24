@@ -25,15 +25,16 @@ module load impi/2019.7.217-iccifort-2020.1.217
 module load ParMETIS/4.0.3-iimpi-2020a
 module load HDF5/1.10.5-iimpi-2020a
 module load Valgrind/3.16.1-iimpi-2020a
+module load SCOTCH/6.0.9-iimpi-2020a
 
 # #External libraries
 export PARMETIS_INSTALL_PATH=/apps/system/easybuild/software/ParMETIS/4.0.3-iimpi-2020a/
-# export PTSCOTCH_INSTALL_PATH=/opt/ptscotch6_Portland/
+export PTSCOTCH_INSTALL_PATH=/apps/system/easybuild/software/SCOTCH/6.0.9-iimpi-2020a/
 export HDF5_INSTALL_PATH=/apps/system/easybuild/software/HDF5/1.10.5-iimpi-2020a/
 # #export HDF5_INSTALL_PATH=/home/mudalige/hdf5-1.10.1-intel
 # export HDF5_INSTALL_PATH=/opt/hdf5_Portland/
 # #export LD_LIBRARY_PATH=/opt/parmetis-intel/lib:/opt/ptscotch-intel/lib:/home/mudalige/hdf5-1.10.1-intel/lib/:$LD_LIBRARY_PATH
-export LD_LIBRARY_PATH=/apps/system/easybuild/software/HDF5/1.10.5-iimpi-2020a/lib:/apps/system/easybuild/software/HDF5/1.10.5-iimpi-2020a/lib:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=/apps/system/easybuild/software/HDF5/1.10.5-iimpi-2020a/lib:/apps/system/easybuild/software/HDF5/1.10.5-iimpi-2020a/lib:/apps/system/easybuild/software/SCOTCH/6.0.9-iimpi-2020a/lib:$LD_LIBRARY_PATH
 
 
 #NVIDIA CUDA

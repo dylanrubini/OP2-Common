@@ -490,12 +490,14 @@ def op2_gen_mpiseq3(master, date, consts, kernels, hydra, bookleaf, utblock):
       code('opArgArray('+str(g_m+1)+') = opArg'+str(g_m+1))
     code('')
 
-    code('#ifdef COMM_PERF',1)     
+    if utblock:
+      code('#ifdef COMM_PERF',1)     
     code('returnSetKernelTiming = setKernelTime('+str(nk)+' , userSubroutine//C_NULL_CHAR, &')
     code('& 0.0_8, 0.00000_4,0.00000_4, 0)')
 
     code('call op_timers_core(startTime)')
-    code('#endif',1)         
+    if utblock:
+      code('#endif',1)         
     code('')
     #mpi halo exchange call
     if grouped:
@@ -620,8 +622,8 @@ def op2_gen_mpiseq3(master, date, consts, kernels, hydra, bookleaf, utblock):
           else:
             print('Error, reduction type '+typs[g_m]+' unrecognised')
           code('')
-
-    code('#ifdef COMM_PERF',1)          
+    if utblock:      
+      code('#ifdef COMM_PERF',1)          
     code('call op_timers_core(endTime)')
     code('')
     code('dataTransfer = 0.0')
@@ -679,7 +681,8 @@ def op2_gen_mpiseq3(master, date, consts, kernels, hydra, bookleaf, utblock):
     code('& endTime-startTime, dataTransfer, 0.00000_4, 1)')
     #code('returnSetKernelTiming = setKernelTime('+str(nk)+' , userSubroutine//C_NULL_CHAR, &')
     #code('& endTime-startTime,0.00000,0.00000, 1)')
-    code('#endif',1)
+    if utblock:
+      code('#endif',1)
     depth = depth - 2
     code('END SUBROUTINE')
     code('END MODULE')
