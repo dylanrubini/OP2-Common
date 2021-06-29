@@ -75,7 +75,8 @@ make clean
 # make utblockPP
 # make utblock
 # make utblock_mpi_genseq
-make airfoil_hdf5_cuda
+# make airfoil_hdf5_cuda
+make airfoil_hdf5_mpi_genseq
 # make utblockPP
 # make utblockPost
 # make utblock_genseq
