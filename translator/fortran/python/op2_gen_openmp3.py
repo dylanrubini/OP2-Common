@@ -844,7 +844,7 @@ def op2_gen_openmp3(master, date, consts, kernels, hydra,bookleaf, utblock):
         os.mknod('Makefile_openmp3_list.txt')
       if nk==0: 
         fid_make = open('Makefile_openmp3_list.txt','w')
-        fid_make.write('utblock_mpi_openmp3: directories \\\n')  
+        fid_make.write('utblock_openmp3: directories \\\n')  
         fid_make.write('\t'+'./kdtree2/src-f90/kdtree2.f90 \\\n')
         fid_make.write('\t'+'psuedo_laplacian_cellnode.F90 \\\n')        
         fid_make.write('\t'+'./Common/constants.F90 \\\n')        
