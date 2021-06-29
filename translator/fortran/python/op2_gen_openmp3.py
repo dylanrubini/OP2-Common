@@ -891,6 +891,6 @@ def makefile_create(kernels, fid_make, prefixes, prefix_i_pass):
       fid_make.write('\t'+'IO.o \\\n')     
     fid_make.write('\t'+name+'_seqkernel.o \\\n')          
   fid_make.write('\t'+'external_subprograms_op.o  utblock_op.o -o utblock_mpi_genseq \\\n')     
-  fid_make.write('\t'+'$(FLINK) $(FFLAGS) -lop2_for_openmp4 -lop2_hdf5 $(HDF5_LIB) $(MPI_LIB) \n')        
+  fid_make.write('\t'+'$(FLINK) $(FFLAGS) -lop2_for_openmp -lop2_hdf5 $(HDF5_LIB) $(MPI_LIB) \n')        
 
   
