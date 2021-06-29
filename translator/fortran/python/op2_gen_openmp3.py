@@ -856,10 +856,32 @@ def op2_gen_openmp3(master, date, consts, kernels, hydra,bookleaf, utblock):
       fid_make.write('\t'+prefixes[prefix_i].replace('User-Kernels','Auto-Kernels/OpenMP3')+name+'_openmp3.F90 \\\n')
       prefix_i_pass.append(prefix_i)
 
+    if utblock: 
+      if not os.path.exists('Makefile_mpi_openmp3_list.txt'):
+        os.mknod('Makefile_mpi_openmp3_list.txt')
+      if nk==0: 
+        fid_make2 = open('Makefile_mpi_openmp3_list.txt','w')
+        fid_make2.write('utblock_mpi_openmp3: directories \\\n')  
+        fid_make2.write('\t'+'./kdtree2/src-f90/kdtree2.f90 \\\n')
+        fid_make2.write('\t'+'psuedo_laplacian_cellnode.F90 \\\n')        
+        fid_make2.write('\t'+'./Common/constants.F90 \\\n')        
+        fid_make2.write('\t'+'./Common/main_constants.F90 \\\n')  
+        fid_make2.write('\t'+'utilities.F90 \\\n')         
+        fid_make2.write('\t'+'global_gas_functions.F90 \\\n') 
+        fid_make2.write('\t'+'./Common/IO.F90 \\\n')     
+        prefix_i_pass2 = []                    
+      fid_make2.write('\t'+prefixes[prefix_i].replace('User-Kernels','Auto-Kernels/OpenMP3')+name+'_openmp3.F90 \\\n')
+      prefix_i_pass2.append(prefix_i)
+
   if utblock:
     fid_make.write('\t \t'+'external_subprograms_op.F90 \\\n')  
     fid_make.write('\t \t'+'utblock_op.F90 \n')    
-    makefile_create(kernels, fid_make, prefixes, prefix_i_pass)         
+    makefile_create(kernels, fid_make, prefixes, prefix_i_pass) 
+
+  if utblock:
+    fid_make2.write('\t \t'+'external_subprograms_op.F90 \\\n')  
+    fid_make2.write('\t \t'+'utblock_op.F90 \n')    
+    makefile_create_mpi(kernels, fid_make2, prefixes, prefix_i_pass2)            
 
 def makefile_create(kernels, fid_make, prefixes, prefix_i_pass):
 
@@ -874,7 +896,7 @@ def makefile_create(kernels, fid_make, prefixes, prefix_i_pass):
       fid_make.write('\t'+'utilities.F90 \\\n')         
       fid_make.write('\t'+'global_gas_functions.F90 \\\n') 
       fid_make.write('\t'+'./Common/IO.F90 \\\n')                         
-    fid_make.write('\t'+prefixes[prefix_i_pass[nk]].replace('User-Kernels','Auto-Kernels/MPI_SEQ3')+name+'_seqkernel.F90 \\\n')    
+    fid_make.write('\t'+prefixes[prefix_i_pass[nk]].replace('User-Kernels','Auto-Kernels/OpenMP3')+name+'_openmp3.F90 \\\n')    
 
   fid_make.write('\t \t'+'external_subprograms_op.F90 \\\n')  
   fid_make.write('\t \t'+'utblock_op.F90 \n')   
@@ -889,8 +911,42 @@ def makefile_create(kernels, fid_make, prefixes, prefix_i_pass):
       fid_make.write('\t'+'utilities.o \\\n')       
       fid_make.write('\t'+'global_gas_functions.o \\\n') 
       fid_make.write('\t'+'IO.o \\\n')     
-    fid_make.write('\t'+name+'_seqkernel.o \\\n')          
+    fid_make.write('\t'+name+'_openmp3.o \\\n')          
   fid_make.write('\t'+'external_subprograms_op.o  utblock_op.o -o utblock_openmp3 \\\n')     
   fid_make.write('\t'+'$(FLINK) $(FFLAGS) -lop2_for_openmp -lop2_hdf5 $(HDF5_LIB) $(MPI_LIB) \n')        
 
+
+def makefile_create_mpi(kernels, fid_make2, prefixes, prefix_i_pass):
+
+  fid_make2.write('\t'+'$(MPIF90) $(FFLAGS) $(OPT) $(OPENMP) $(FMPI_MODS)  $(MPI_INC) $(HDF5_INC) -c \\\n')
+  for nk in range (0,len(kernels)):
+    name  = kernels[nk]['name']
+    if nk==0: 
+      fid_make2.write('\t'+'./kdtree2/src-f90/kdtree2.f90 \\\n')     
+      fid_make2.write('\t'+'psuedo_laplacian_cellnode.F90 \\\n')            
+      fid_make2.write('\t'+'./Common/constants.F90 \\\n')        
+      fid_make2.write('\t'+'./Common/main_constants.F90 \\\n')
+      fid_make2.write('\t'+'utilities.F90 \\\n')         
+      fid_make2.write('\t'+'global_gas_functions.F90 \\\n') 
+      fid_make2.write('\t'+'./Common/IO.F90 \\\n')                         
+    fid_make2.write('\t'+prefixes[prefix_i_pass[nk]].replace('User-Kernels','Auto-Kernels/OpenMP3')+name+'_openmp3.F90 \\\n')    
+
+  fid_make2.write('\t \t'+'external_subprograms_op.F90 \\\n')  
+  fid_make2.write('\t \t'+'utblock_op.F90 \n')   
+  fid_make2.write('\t'+'$(MPIF90) $(FFLAGS) $(OPT) $(OPENMP)  $(PARMETIS_INC) $(PTSCOTCH_INC)  $(HDF5_INC) \\\n')
+  for nk in range (0,len(kernels)):
+    name  = kernels[nk]['name']
+    if nk==0: 
+      fid_make2.write('\t'+'kdtree2.o \\\n')         
+      fid_make2.write('\t'+'psuedo_laplacian_cellnode.o \\\n')        
+      fid_make2.write('\t'+'constants.o \\\n')        
+      fid_make2.write('\t'+'main_constants.o \\\n')  
+      fid_make2.write('\t'+'utilities.o \\\n')       
+      fid_make2.write('\t'+'global_gas_functions.o \\\n') 
+      fid_make2.write('\t'+'IO.o \\\n')     
+    fid_make2.write('\t'+name+'_openmp3.o \\\n')          
+  fid_make2.write('\t'+'external_subprograms_op.o  utblock_op.o -o utblock_mpi_openmp3 \\\n')     
+  fid_make2.write('\t'+'$(FLINK) $(FFLAGS) -lop2_for_mpi $(PARMETIS_LIB) $(PTSCOTCH_LIB)  $(HDF5_LIB) $(MPI_LIB) $(CPPLINK) \n')        
+
+  
   
