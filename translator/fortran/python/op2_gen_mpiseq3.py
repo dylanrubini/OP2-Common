@@ -321,7 +321,7 @@ def op2_gen_mpiseq3(master, date, consts, kernels, hydra, bookleaf, utblock):
       prefixes=['./User-Kernels/set_flux/','./User-Kernels/utblock_main/','./User-Kernels/sumflux/','./User-Kernels/setstep/', \
       './User-Kernels/set_xlength/','./User-Kernels/bconds/','./User-Kernels/sumas/', './User-Kernels/inguess/', \
       './User-Kernels/set_visforce/', './User-Kernels/time_average/', './User-Kernels/output/', './User-Kernels/SA_model/',\
-      './User-Kernels/multigrid']
+      './User-Kernels/multigrid/']
       prefix_i=0      
       while (prefix_i<13 and (not os.path.exists(prefixes[prefix_i]+name+'.inc'))):
         prefix_i=prefix_i+1
