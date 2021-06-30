@@ -321,9 +321,10 @@ def op2_gen_openmp3(master, date, consts, kernels, hydra,bookleaf, utblock):
       file_text += '!DEC$ ATTRIBUTES FORCEINLINE :: ' + name + '\n'      
       prefixes=['./User-Kernels/set_flux/','./User-Kernels/utblock_main/','./User-Kernels/sumflux/','./User-Kernels/setstep/', \
       './User-Kernels/set_xlength/','./User-Kernels/bconds/','./User-Kernels/sumas/', './User-Kernels/inguess/', \
-      './User-Kernels/set_visforce/', './User-Kernels/time_average/', './User-Kernels/output/', './User-Kernels/SA_model/']
+      './User-Kernels/set_visforce/', './User-Kernels/time_average/', './User-Kernels/output/', './User-Kernels/SA_model/',\
+      './User-Kernels/multigrid']
       prefix_i=0      
-      while (prefix_i<12 and (not os.path.exists(prefixes[prefix_i]+name+'.inc'))):
+      while (prefix_i<13 and (not os.path.exists(prefixes[prefix_i]+name+'.inc'))):
         prefix_i=prefix_i+1
 
       fid = open(prefixes[prefix_i]+name+'.inc', 'r')
