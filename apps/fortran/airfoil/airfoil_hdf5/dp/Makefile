@@ -67,7 +67,7 @@ endif
 ifeq ($(OP2_COMPILER),gnu)
   CC = gcc
   FC = gfortran
-  MPI_LIB = -L$(MPI_INSTALL_PATH)/lib -lmpi -lmpi_cxx
+  MPI_LIB = -L$(MPI_INSTALL_PATH)/lib -lmpi #-lmpi_cxx
   MPI_INC = -I$(MPI_INSTALL_PATH)/include
   MPIF90 = $(FC) #$(MPI_INC) $(MPI_LIB)
   OPT = -O2 -DOP_PART_SIZE_1=$(PART_SIZE_ENV)
@@ -149,6 +149,10 @@ endif
 FLINK = -L$(F_OP2_LIB)
 FMODS = -I$(F_OP2_MOD)
 FMPI_MODS = -I$(F_OP2_MOD)/mpi
+
+ifdef CALIPER_INSTALL_PATH
+  FLINK += -L$(CALIPER_INSTALL_PATH)/lib64 -lcaliper
+endif
 
 all: $(ALL_TARGETS)
 

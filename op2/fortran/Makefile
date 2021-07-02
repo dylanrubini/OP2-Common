@@ -265,6 +265,11 @@ endif
 endif
 endif
 
+ifdef CALIPER_INSTALL_PATH
+	CFLAGS += -I$(CALIPER_INSTALL_PATH)/include
+  CFLAGS += -DOP2_CALIPER
+endif
+
 NVCCFLAGS += -O3 $(CODE_GEN_CUDA) -m64 -Xptxas=-v -use_fast_math -g #-G -O0
 
 .PHONY: clean directories

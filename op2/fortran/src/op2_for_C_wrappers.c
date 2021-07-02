@@ -70,6 +70,9 @@
 
 #include <op_lib_c.h>
 
+#ifdef OP2_CALIPER
+#include <caliper/cali.h>
+#endif
 
 #ifdef NO_MPI
 
@@ -453,6 +456,10 @@ int setKernelTime (int id, char name[], double kernelTime, float transfer, float
   OP_kernels[id].time += (float)kernelTime;
   OP_kernels[id].transfer += transfer;
   OP_kernels[id].transfer2 += transfer2;
+#ifdef OP2_CALIPER
+  if (count == 0) CALI_MARK_BEGIN(name);
+  else CALI_MARK_END(name);
+#endif
 
   return 0;
 }
