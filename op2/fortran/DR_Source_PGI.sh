@@ -23,7 +23,7 @@ export HDF5_INSTALL_PATH=/opt/hdf5_Portland/
 export LD_LIBRARY_PATH=/opt/parmetis4_Portland/lib:/opt/ptscotch6_Portland/lib:/opt/hdf5_Portland/lib:$LD_LIBRARY_PATH
 
 
-export CALIPER_INSTALL_PATH=/opt/Caliper-instal-Fortranl/
+export CALIPER_INSTALL_PATH=/opt/Caliper-instal-Fortran/
 
 #NVIDIA CUDA
 export PATH=/usr/local/cuda/bin:$PATH
