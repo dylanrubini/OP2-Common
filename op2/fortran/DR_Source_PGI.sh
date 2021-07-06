@@ -23,9 +23,12 @@ export HDF5_INSTALL_PATH=/opt/hdf5_Portland/
 export LD_LIBRARY_PATH=/opt/parmetis4_Portland/lib:/opt/ptscotch6_Portland/lib:/opt/hdf5_Portland/lib:$LD_LIBRARY_PATH
 
 
+export CALIPER_INSTALL_PATH=/opt/Caliper-instal-Fortranl/
+
 #NVIDIA CUDA
 export PATH=/usr/local/cuda/bin:$PATH
 export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=/opt/Caliper-install-Fortran/lib64:$LD_LIBRARY_PATH 
 export CUDA_INSTALL_PATH=/usr/local/cuda
 export NV_ARCH=Turing
 # export PATH=/usr/local/cuda/bin:$PATH

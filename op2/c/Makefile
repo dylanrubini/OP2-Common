@@ -108,9 +108,9 @@ else
 ifeq ($(OP2_COMPILER),pgi)
   CUDA_ALIGNE_FLAG = -D__x86_64 -D__align__\(n\)=__attribute__\(\(aligned\(n\)\)\) -D__location__\(a\)=__annotate__\(a\) -DCUDARTAPI=
   ifdef DEBUG
-    CCFLAGS = -g -O0
+    CCFLAGS = -g -O0 -std=c++11
   else
-    CCFLAGS = -O3
+    CCFLAGS = -O3 -std=c++11
   endif
   CXX	    = pgc++
   CXXFLAGS  = $(CCFLAGS)
@@ -152,6 +152,13 @@ ifdef CPP_WRAPPER
 endif
 ifdef MPICPP_WRAPPER
 	MPICXX = $(MPICPP_WRAPPER)
+endif
+
+ifdef CALIPER_INSTALL_PATH
+	CCFLAGS += -I$(CALIPER_INSTALL_PATH)/include
+	CCFLAGS += -DOP2_CALIPER
+	MPIFLAGS += -I$(CALIPER_INSTALL_PATH)/include
+	MPIFLAGS += -DOP2_CALIPER
 endif
 
 # flags for nvcc
