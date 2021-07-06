@@ -250,9 +250,6 @@ def op2_gen_mpiseq3(master, date, consts, kernels, hydra, bookleaf, utblock):
       code('USE kdtree2_precision_module')
       code('USE kdtree2_module')             
       code('USE PSUEDO_LAPLACIAN_CELLNODE')
-      code('#ifdef OP2_CALIPER',1)
-      code('  USE caliper_mod')
-      code('#endif',1)
     code('')
 
 ##########################################################################
@@ -531,7 +528,7 @@ def op2_gen_mpiseq3(master, date, consts, kernels, hydra, bookleaf, utblock):
     code('')
     if 1:
       code('#ifdef OP2_CALIPER',1)
-      code('  CALL cali_begin_region("core elements compute")')
+      code('  CALL time_caliper(0,"core elements compute")')
       code('#endif',1)
       code('CALL op_wrap_'+name+'( &')
       for g_m in range(0,ninds):
@@ -553,14 +550,14 @@ def op2_gen_mpiseq3(master, date, consts, kernels, hydra, bookleaf, utblock):
             code('& opDat'+str(invinds[inds[g_m]-1]+1)+'MapDim, &')
       code('& 0, opSetCore%core_size)')
       code('#ifdef OP2_CALIPER',1)
-      code('  CALL cali_end_region("core elements compute")')
+      code('  CALL time_caliper(1,"core elements compute")')
       code('#endif',1)      
     if grouped:
       code('CALL op_mpi_wait_all_grouped(numberOfOpDats,opArgArray,1)')
     else:
       code('CALL op_mpi_wait_all(numberOfOpDats,opArgArray)')
     code('#ifdef OP2_CALIPER',1)
-    code('  CALL cali_begin_region("exec elements compute")')
+    code('  CALL time_caliper(0,"exec elements compute")')
     code('#endif',1)         
     code('CALL op_wrap_'+name+'( &')
     for g_m in range(0,ninds):
@@ -584,7 +581,7 @@ def op2_gen_mpiseq3(master, date, consts, kernels, hydra, bookleaf, utblock):
     code('& opSetCore%core_size, n_upper)')
 
     code('#ifdef OP2_CALIPER',1)
-    code('  CALL cali_end_region("exec elements compute")')
+    code('  CALL time_caliper(1,"exec elements compute")')
     code('#endif',1)
     IF('(n_upper .EQ. 0) .OR. (n_upper .EQ. opSetCore%core_size)')
     if grouped:

@@ -446,6 +446,13 @@ module OP2_Fortran_RT_Support
 
     end function setKernelTime
 
+#ifdef OP2_CALIPER
+    subroutine time_caliper (start_end, name) BIND(C,name='time_caliper')
+      integer(kind=c_int), value :: start_end  
+      character(kind=c_char) :: name(*)          
+    end subroutine time_caliper
+#endif    
+
   end interface
 
   contains
