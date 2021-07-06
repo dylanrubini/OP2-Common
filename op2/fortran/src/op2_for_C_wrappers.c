@@ -476,10 +476,9 @@ void increment_all_mappings () {
       OP_map_list[i]->map[j]++;
 }
 
-#ifdef OP2_CALIPER
 void time_caliper (int start_end, char name[]) {
-  
+#ifdef OP2_CALIPER
   if (start_end == 0) CALI_MARK_BEGIN(name);
   else CALI_MARK_END(name);
-}
 #endif
+}

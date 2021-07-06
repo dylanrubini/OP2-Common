@@ -73,9 +73,7 @@ void dumpOpMap (op_map_core * map, const char * fileName);
 op_arg
 op_arg_gbl_fortran (char * dat, int dim, char * type, int acc);
 
-#ifdef OP2_CALIPER
 void time_caliper(int start_end, char name[]);
-#endif
 
 #ifdef NO_MPI
 
