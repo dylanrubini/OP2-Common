@@ -49,9 +49,6 @@
 
 #include <op_mpi_core.h>
 
-#ifdef OP2_CALIPER
-#include <caliper/cali.h>
-#endif
 
 //
 // MPI Halo related global variables
@@ -3199,16 +3196,10 @@ void op_mpi_set_dirtybit_cuda(int nargs, op_arg *args) {
 }
 
 void op_mpi_wait_all(int nargs, op_arg *args) {
-  op_timers_core(&c1, &t1);
-#ifdef OP2_CALIPER
- CALI_MARK_BEGIN("op_mpi_wait_all");
-#endif    
+  op_timers_core(&c1, &t1);  
   for (int n = 0; n < nargs; n++) {
     op_wait_all(&args[n]);
-  }
-#ifdef OP2_CALIPER
- CALI_MARK_END("op_mpi_wait_all");
-#endif     
+  }    
   op_timers_core(&c2, &t2);
   if (OP_kern_max > 0)
     OP_kernels[OP_kern_curr].mpi_time += t2 - t1;

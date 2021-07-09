@@ -551,11 +551,19 @@ def op2_gen_mpiseq3(master, date, consts, kernels, hydra, bookleaf, utblock):
       code('& 0, opSetCore%core_size)')
       code('#ifdef OP2_CALIPER',1)
       code('  CALL time_caliper(1,"core elements compute")')
-      code('#endif',1)      
+      code('#endif',1)     
+      code('#ifdef OP2_CALIPER',1)
+      code('  CALL time_caliper(0,"op_mpi_waitall1")')
+      code('#endif',1)        
     if grouped:
       code('CALL op_mpi_wait_all_grouped(numberOfOpDats,opArgArray,1)')
     else:
       code('CALL op_mpi_wait_all(numberOfOpDats,opArgArray)')
+
+    code('#ifdef OP2_CALIPER',1)
+    code('  CALL time_caliper(1,"op_mpi_waitall1")')
+    code('#endif',1) 
+
     code('#ifdef OP2_CALIPER',1)
     code('  CALL time_caliper(0,"exec elements compute")')
     code('#endif',1)         
@@ -583,6 +591,10 @@ def op2_gen_mpiseq3(master, date, consts, kernels, hydra, bookleaf, utblock):
     code('#ifdef OP2_CALIPER',1)
     code('  CALL time_caliper(1,"exec elements compute")')
     code('#endif',1)
+
+    code('#ifdef OP2_CALIPER',1)
+    code('  CALL time_caliper(0,"op_mpi_waitall2")')
+    code('#endif',1)     
     IF('(n_upper .EQ. 0) .OR. (n_upper .EQ. opSetCore%core_size)')
     if grouped:
       code('CALL op_mpi_wait_all_grouped(numberOfOpDats,opArgArray,1)')
@@ -590,6 +602,10 @@ def op2_gen_mpiseq3(master, date, consts, kernels, hydra, bookleaf, utblock):
       code('CALL op_mpi_wait_all(numberOfOpDats,opArgArray)')
     ENDIF()
     code('')
+
+    code('#ifdef OP2_CALIPER',1)
+    code('  CALL time_caliper(1,"op_mpi_waitall2")')
+    code('#endif',1)     
 
 
 
