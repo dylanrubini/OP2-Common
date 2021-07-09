@@ -552,6 +552,7 @@ def op2_gen_mpiseq3(master, date, consts, kernels, hydra, bookleaf, utblock):
       code('#ifdef OP2_CALIPER',1)
       code('  CALL time_caliper(1,"core elements compute")')
       code('#endif',1)     
+      code('')
       code('#ifdef OP2_CALIPER',1)
       code('  CALL time_caliper(0,"op_mpi_waitall1")')
       code('#endif',1)        
@@ -563,7 +564,7 @@ def op2_gen_mpiseq3(master, date, consts, kernels, hydra, bookleaf, utblock):
     code('#ifdef OP2_CALIPER',1)
     code('  CALL time_caliper(1,"op_mpi_waitall1")')
     code('#endif',1) 
-
+    code('')
     code('#ifdef OP2_CALIPER',1)
     code('  CALL time_caliper(0,"exec elements compute")')
     code('#endif',1)         
@@ -591,7 +592,7 @@ def op2_gen_mpiseq3(master, date, consts, kernels, hydra, bookleaf, utblock):
     code('#ifdef OP2_CALIPER',1)
     code('  CALL time_caliper(1,"exec elements compute")')
     code('#endif',1)
-
+    code('')
     code('#ifdef OP2_CALIPER',1)
     code('  CALL time_caliper(0,"op_mpi_waitall2")')
     code('#endif',1)     
