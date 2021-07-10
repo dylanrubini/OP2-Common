@@ -205,7 +205,7 @@ module OP2_Fortran_RT_Support
 
     end function
 
-    subroutine op_partition_c (lib_name, lib_routine, prime_set, prime_map, coords) BIND(C,name='op_partition')
+    subroutine op_partition_c (lib_name, lib_routine, prime_set, prime_map, coords, vertex_wgts) BIND(C,name='op_partition')
 
       use, intrinsic :: ISO_C_BINDING
       use OP2_Fortran_Declarations
@@ -216,10 +216,11 @@ module OP2_Fortran_RT_Support
       type(op_set_core) :: prime_set
       type(op_map_core) :: prime_map
       type(op_dat_core) :: coords
+      type(op_dat_core) :: vertex_wgts     
 
     end subroutine
 
-    subroutine op_partition_ptr_c (lib_name, lib_routine, prime_set, prime_map, coords) BIND(C,name='op_partition_ptr')
+    subroutine op_partition_ptr_c (lib_name, lib_routine, prime_set, prime_map, coords, vertex_wgts) BIND(C,name='op_partition_ptr')
 
       use, intrinsic :: ISO_C_BINDING
       use OP2_Fortran_Declarations
@@ -230,6 +231,7 @@ module OP2_Fortran_RT_Support
       type(op_set_core) :: prime_set
       type(c_ptr), value, intent(in) :: prime_map
       type(c_ptr), value, intent(in) :: coords
+      type(c_ptr), value, intent(in) :: vertex_wgts
 
     end subroutine
 
@@ -460,7 +462,8 @@ module OP2_Fortran_RT_Support
 
   contains
 
-  subroutine op_partition (lib_name, lib_routine, prime_set, prime_map, coords)
+  subroutine op_partition (lib_name, lib_routine, prime_set, prime_map, coords, &
+                           vertex_wgts)
 
     use, intrinsic :: ISO_C_BINDING
     use OP2_Fortran_Declarations
@@ -473,12 +476,14 @@ module OP2_Fortran_RT_Support
     type(op_set) :: prime_set
     type(op_map) :: prime_map
     type(op_dat) :: coords
+    type(op_dat) :: vertex_wgts
 
-    call op_partition_c (lib_name//C_NULL_CHAR, lib_routine//C_NULL_CHAR, prime_set%setPtr, prime_map%mapPtr, coords%dataPtr)
+    call op_partition_c (lib_name//C_NULL_CHAR, lib_routine//C_NULL_CHAR, prime_set%setPtr, prime_map%mapPtr, coords%dataPtr, &
+                         vertex_wgts%dataPtr)
 
   end subroutine
 
-  subroutine op_partition2 (lib_name, lib_routine, prime_set, prime_map, coords)
+  subroutine op_partition2 (lib_name, lib_routine, prime_set, prime_map, coords, vertex_wgts)
 
     use, intrinsic :: ISO_C_BINDING
     use OP2_Fortran_Declarations
@@ -491,8 +496,10 @@ module OP2_Fortran_RT_Support
     type(op_set) :: prime_set
     integer*4, dimension(*), target :: prime_map
     real*8, dimension(*), target :: coords
+    integer*4, dimension(*), target :: vertex_wgts
 
-    call op_partition_ptr_c (lib_name//C_NULL_CHAR, lib_routine//C_NULL_CHAR, prime_set%setPtr, c_loc(prime_map), c_loc(coords))
+    call op_partition_ptr_c (lib_name//C_NULL_CHAR, lib_routine//C_NULL_CHAR, prime_set%setPtr, c_loc(prime_map), c_loc(coords), &
+                             c_loc(vertex_wgts))
 
   end subroutine
 

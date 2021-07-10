@@ -43,8 +43,8 @@ extern op_plan * OP_plans;
 #define ERR_INDEX -1
 
 void op_partition_wrapper (const char* lib_name, const char* lib_routine,
-  op_set prime_set, op_map prime_map, op_dat coords) {
-  op_partition (lib_name, lib_routine, prime_set, prime_map, coords);
+  op_set prime_set, op_map prime_map, op_dat coords, op_dat vertex_wgts) {
+  op_partition (lib_name, lib_routine, prime_set, prime_map, coords, vertex_wgts);
 }
 
 void FortranToCMapping (op_arg * arg) {

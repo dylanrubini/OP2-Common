@@ -1677,7 +1677,7 @@ void op_partition_geom(op_dat coords) {
  * Wrapper routine to partition a given set Using ParMETIS PartKway()
  *******************************************************************************/
 
-void op_partition_kway(op_map primary_map) {
+void op_partition_kway(op_map primary_map, op_dat vertex_wgts) {
   // declare timers
   double cpu_t1, cpu_t2, wall_t1, wall_t2;
   double time;
@@ -1981,8 +1981,29 @@ void op_partition_kway(op_map primary_map) {
 
   idx_t edge_cut = 0;
   idx_t numflag = 0;
-  idx_t wgtflag = 0;
   idx_t options[3] = {1, 3, 15};
+
+  /*---  Set up graph vertex weights data structures ------------*/
+
+  idx_t *vwgt  = NULL;  
+  idx_t ncon    = 1;
+  idx_t wgtflag = 0;
+
+  if (vertex_wgts != NULL) {
+    ncon    = 5;
+    wgtflag = 1;
+
+    vwgt = (idx_t *)xmalloc(vertex_wgts->set->size * vertex_wgts->dim * sizeof(idx_t));
+    size_t mult = vertex_wgts->size / vertex_wgts->dim;
+    for (int i = 0; i < vertex_wgts->set->size; i++) {
+      int temp;
+      for (int e = 0; e < vertex_wgts->dim; e++) {
+        memcpy(&temp, (void *)&(vertex_wgts->data[(i * vertex_wgts->dim + e) * mult]),
+               mult);
+        vwgt[i * vertex_wgts->dim + e] = (idx_t)temp;
+      }
+    }
+  } 
 
   int *hybrid_flags = (int *)xmalloc(comm_size * sizeof(int));
   MPI_Allgather(&OP_hybrid_gpu, 1, MPI_INT, hybrid_flags, 1, MPI_INT,
@@ -1991,7 +2012,6 @@ void op_partition_kway(op_map primary_map) {
   for (int i = 0; i < comm_size; i++)
     total += hybrid_flags[i] == 1 ? OP_hybrid_balance : 1.0;
 
-  idx_t ncon = 1;
   real_t *tpwgts = (real_t *)xmalloc(comm_size * sizeof(real_t) * ncon);
   for (int i = 0; i < comm_size * ncon; i++)
     tpwgts[i] = hybrid_flags[i] == 1 ? OP_hybrid_balance / total : 1.0 / total;
@@ -2019,7 +2039,7 @@ void op_partition_kway(op_map primary_map) {
     printf("ParMETIS_V3_PartKway Output\n");
     printf("-----------------------------------------------------------\n");
   }
-  ParMETIS_V3_PartKway(vtxdist, xadj, adjncy, NULL, NULL, &wgtflag, &numflag,
+  ParMETIS_V3_PartKway(vtxdist, xadj, adjncy, vwgt, NULL, &wgtflag, &numflag,
                        &ncon, &comm_size_pm, tpwgts, ubvec, options, &edge_cut,
                        partition_pm, &OP_PART_WORLD);
   if (my_rank == MPI_ROOT)
@@ -2029,6 +2049,7 @@ void op_partition_kway(op_map primary_map) {
   op_free(adjncy);
   op_free(ubvec);
   op_free(tpwgts);
+  op_free(vwgt);
 
   int *partition = (int *)xmalloc(sizeof(int) * primary_map->to->size);
   for (int i = 0; i < primary_map->to->size; i++) {
@@ -3528,7 +3549,7 @@ void op_partition_inertial(op_dat x_dat) {
 * Toplevel partitioning selection function - also triggers halo creation
 *******************************************************************************/
 void partition(const char *lib_name, const char *lib_routine, op_set prime_set,
-               op_map prime_map, op_dat data) {
+               op_map prime_map, op_dat data, op_dat vertex_weights) {
 #if !defined(HAVE_PTSCOTCH) && !defined(HAVE_PARMETIS)
   /* Suppress warning */
   (void)lib_routine;
@@ -3584,7 +3605,7 @@ void partition(const char *lib_name, const char *lib_routine, op_set prime_set,
     if (strcmp(lib_routine, "KWAY") == 0) {
       op_printf("Selected Partitioning Routine : %s\n", lib_routine);
       if (prime_map != NULL)
-        op_partition_kway(prime_map); // use parmetis kaway partitioning
+        op_partition_kway(prime_map, vertex_weights); // use parmetis kaway partitioning
       else {
         op_printf("Partitioning prime_map : NULL - UNSUPPORTED Partitioner "
                   "Specification\n");
@@ -3727,7 +3748,8 @@ void partition(const char *lib_name, const char *lib_routine, op_set prime_set,
 
 extern int **OP_map_ptr_list;
 void op_partition_ptr(const char *lib_name, const char *lib_routine,
-                      op_set prime_set, int *prime_map, double *coords) {
+                      op_set prime_set, int *prime_map, double *coords,
+                      int *vertex_wgts) {
   op_dat_entry *item;
   op_dat_entry *tmp_item;
   op_dat item_dat = NULL;
@@ -3741,6 +3763,21 @@ void op_partition_ptr(const char *lib_name, const char *lib_routine,
       break;
     }
   }
+
+  op_dat_entry *item2;
+  op_dat_entry *tmp_item2;
+  op_dat item_dat2 = NULL;
+  for (item2 = TAILQ_FIRST(&OP_dat_list); item2 != NULL; item2 = tmp_item2) {
+    tmp_item2 = TAILQ_NEXT(item2, entries);
+    // printf("Available op_dat %s with pointer %p\n", item->dat->name,
+    // item->dat->data);
+    if (item2->orig_ptr == vertex_wgts) {
+      // printf("%s(%p), ", item->dat->name, item->dat->data);
+      item_dat2 = item2->dat;
+      break;
+    }
+  }
+
   // printf("\n");
   if (item_dat == NULL) {
     printf("ERROR in op_partition: op_dat not found for dat with %p pointer\n",
@@ -3759,5 +3796,5 @@ void op_partition_ptr(const char *lib_name, const char *lib_routine,
     for (int i = 0; i < OP_map_index; i++)
       printf("%s (%p) ", OP_map_list[i]->name, OP_map_ptr_list[i]);
   }
-  op_partition(lib_name, lib_routine, prime_set, item_map, item_dat);
+  op_partition(lib_name, lib_routine, prime_set, item_map, item_dat, item_dat2);
 }

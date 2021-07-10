@@ -308,8 +308,10 @@ void op_wait_all(op_arg *arg) {
 void op_wait_all_cuda(op_arg *arg) {}
 
 void op_partition(const char *lib_name, const char *lib_routine,
-                  op_set prime_set, op_map prime_map, op_dat coords) {
-  partition(lib_name, lib_routine, prime_set, prime_map, coords);
+                  op_set prime_set, op_map prime_map, op_dat coords,
+                  op_dat vertex_wgts) {
+  partition(lib_name, lib_routine, prime_set, prime_map, coords,
+            vertex_wgts);
 }
 
 void op_move_to_device() {}
