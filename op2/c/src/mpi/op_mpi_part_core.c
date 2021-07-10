@@ -1991,8 +1991,8 @@ void op_partition_kway(op_map primary_map, op_dat vertex_wgts) {
 
   if (vertex_wgts != NULL) {
     ncon    = 5;
-    wgtflag = 1;
-
+    wgtflag = 2;
+        
     vwgt = (idx_t *)xmalloc(vertex_wgts->set->size * vertex_wgts->dim * sizeof(idx_t));
     size_t mult = vertex_wgts->size / vertex_wgts->dim;
     for (int i = 0; i < vertex_wgts->set->size; i++) {
@@ -2005,6 +2005,13 @@ void op_partition_kway(op_map primary_map, op_dat vertex_wgts) {
     }
   } 
 
+  real_t *ubvec = (real_t *)xmalloc(sizeof(real_t) * ncon);
+  ubvec[0] = 1.02;
+  ubvec[1] = 1.05;
+  ubvec[2] = 1.05;
+  ubvec[3] = 1.05;
+  ubvec[4] = 1.05;
+
   int *hybrid_flags = (int *)xmalloc(comm_size * sizeof(int));
   MPI_Allgather(&OP_hybrid_gpu, 1, MPI_INT, hybrid_flags, 1, MPI_INT,
                 OP_PART_WORLD);
@@ -2015,9 +2022,6 @@ void op_partition_kway(op_map primary_map, op_dat vertex_wgts) {
   real_t *tpwgts = (real_t *)xmalloc(comm_size * sizeof(real_t) * ncon);
   for (int i = 0; i < comm_size * ncon; i++)
     tpwgts[i] = hybrid_flags[i] == 1 ? OP_hybrid_balance / total : 1.0 / total;
-
-  real_t *ubvec = (real_t *)xmalloc(sizeof(real_t) * ncon);
-  *ubvec = 1.05;
 
   // clean up before calling ParMetis
   for (int i = 0; i < OP_set_index; i++)
