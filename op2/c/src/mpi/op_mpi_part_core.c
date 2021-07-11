@@ -1990,7 +1990,7 @@ void op_partition_kway(op_map primary_map, op_dat vertex_wgts) {
   idx_t wgtflag = 0;
 
   if (vertex_wgts != NULL) {
-    ncon    = 5;
+    ncon    = 9;
     wgtflag = 2;
         
     vwgt = (idx_t *)xmalloc(vertex_wgts->set->size * vertex_wgts->dim * sizeof(idx_t));
@@ -2011,6 +2011,10 @@ void op_partition_kway(op_map primary_map, op_dat vertex_wgts) {
   ubvec[2] = 1.05;
   ubvec[3] = 1.05;
   ubvec[4] = 1.05;
+  ubvec[5] = 1.05;
+  ubvec[6] = 1.05;
+  ubvec[7] = 1.09;
+  ubvec[8] = 1.09;
 
   int *hybrid_flags = (int *)xmalloc(comm_size * sizeof(int));
   MPI_Allgather(&OP_hybrid_gpu, 1, MPI_INT, hybrid_flags, 1, MPI_INT,
