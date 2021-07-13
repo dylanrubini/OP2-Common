@@ -1989,32 +1989,29 @@ void op_partition_kway(op_map primary_map, op_dat vertex_wgts) {
   idx_t ncon    = 1;
   idx_t wgtflag = 0;
 
-  if (vertex_wgts != NULL) {
-    ncon    = 9;
-    wgtflag = 2;
+  // if (vertex_wgts != NULL) {
+  //   ncon    = 5;
+  //   wgtflag = 2;
         
-    vwgt = (idx_t *)xmalloc(vertex_wgts->set->size * vertex_wgts->dim * sizeof(idx_t));
-    size_t mult = vertex_wgts->size / vertex_wgts->dim;
-    for (int i = 0; i < vertex_wgts->set->size; i++) {
-      int temp;
-      for (int e = 0; e < vertex_wgts->dim; e++) {
-        memcpy(&temp, (void *)&(vertex_wgts->data[(i * vertex_wgts->dim + e) * mult]),
-               mult);
-        vwgt[i * vertex_wgts->dim + e] = (idx_t)temp;
-      }
-    }
-  } 
+  //   vwgt = (idx_t *)xmalloc(vertex_wgts->set->size * vertex_wgts->dim * sizeof(idx_t));
+  //   size_t mult = vertex_wgts->size / vertex_wgts->dim;
+  //   for (int i = 0; i < vertex_wgts->set->size; i++) {
+  //     int temp;
+  //     for (int e = 0; e < vertex_wgts->dim; e++) {
+  //       memcpy(&temp, (void *)&(vertex_wgts->data[(i * vertex_wgts->dim + e) * mult]),
+  //              mult);
+  //       vwgt[i * vertex_wgts->dim + e] = (idx_t)temp;
+  //     }
+  //   }
+  // } 
 
   real_t *ubvec = (real_t *)xmalloc(sizeof(real_t) * ncon);
-  ubvec[0] = 1.02;
-  ubvec[1] = 1.05;
-  ubvec[2] = 1.05;
-  ubvec[3] = 1.05;
-  ubvec[4] = 1.05;
-  ubvec[5] = 1.05;
-  ubvec[6] = 1.05;
-  ubvec[7] = 1.09;
-  ubvec[8] = 1.09;
+  *ubvec = 1.05;
+  // ubvec[0] = 1.05;
+  // ubvec[1] = 1.5;
+  // ubvec[2] = 1.5;
+  // ubvec[3] = 1.1;
+  // ubvec[4] = 1.1;
 
   int *hybrid_flags = (int *)xmalloc(comm_size * sizeof(int));
   MPI_Allgather(&OP_hybrid_gpu, 1, MPI_INT, hybrid_flags, 1, MPI_INT,
@@ -2047,7 +2044,7 @@ void op_partition_kway(op_map primary_map, op_dat vertex_wgts) {
     printf("ParMETIS_V3_PartKway Output\n");
     printf("-----------------------------------------------------------\n");
   }
-  ParMETIS_V3_PartKway(vtxdist, xadj, adjncy, vwgt, NULL, &wgtflag, &numflag,
+  ParMETIS_V3_PartKway(vtxdist, xadj, adjncy, NULL, NULL, &wgtflag, &numflag,
                        &ncon, &comm_size_pm, tpwgts, ubvec, options, &edge_cut,
                        partition_pm, &OP_PART_WORLD);
   if (my_rank == MPI_ROOT)
